@@ -83,4 +83,41 @@ urlpatterns = [
     views.teaching_staff,
     name='teaching_staff'),
 
+    path(
+    'non-teaching-staff/',
+    views.non_teaching_staff,
+    name='non_teaching_staff'),
+
+    path('activities/',
+     views.activities,
+     name='activities'),
+
+     path(
+    'terms-and-conditions/',
+    views.terms_conditions,
+    name='terms_conditions'),
+
+     path(
+    'evaluation-participants/',
+    views.evaluation_participants,
+    name='evaluation_participants'),
+
+    path(
+    'resource-persons/',
+    views.resource_persons,
+    name='resource_persons'),
+
+    path(
+    'contact/',
+    views.contact_us,
+    name='contact_us'),
+     path(
+     'gallery/',
+     views.gallery,
+     name='gallery'),
+
+     path(
+    'view-messages/',
+    views.view_messages,
+    name='view_messages'),
 ]

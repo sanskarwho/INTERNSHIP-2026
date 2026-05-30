@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Contact Us
+{% endblock %}
+
+{% block content %}
+
+<div class="info-box">
+
+    <div class="info-box-header">
+
+        <h1>
+            Contact Us
+        </h1>
+
+    </div>
+
+    <div class="info-box-content">
+
+        <h2>
+            Malaviya Mission Teacher Training Centre
+        </h2>
+
+        <p>
+            <strong>Email:</strong>
+            ac_staff@rediffmail.com
+        </p>
+
+        <p>
+            <strong>Designation:</strong>
+            Director
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            0542-2369460
+        </p>
+
+        <hr>
+
+        <h2>
+            For Further Information
+        </h2>
+
+        {% if success %}
+
+        <p style="color: green; font-weight: bold;">
+            Your message has been submitted successfully.
+        </p>
+
+        {% endif %}
+
+        <form class="contact-form" method="POST">
+
+            {% csrf_token %}
+
+            <label>Name</label>
+            <input type="text" name="name" required>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Subject</label>
+            <input type="text" name="subject" required>
+
+            <label>Message</label>
+            <textarea name="message" rows="6" required></textarea>
+
+            <button type="submit">
+                Send Message
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

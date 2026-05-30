@@ -92,9 +92,9 @@
             </li>
 
             <li>
-                <a href="/terms/">
-                    Terms & Conditions
-                </a>
+                    <a href="{% url 'terms_conditions' %}">
+                        Terms and Conditions
+                    </a>
             </li>
 
             <li class="dropdown">
@@ -105,9 +105,16 @@
 
                 <ul class="dropdown-menu">
 
-                    <li><a href="/participants/">Participants</a></li>
+                    <li>{% load static %}
 
-                    <li><a href="/evaluation/">Evaluation</a></li>
+                        <a href="{% static 'pdf/participants.pdf' %}"
+                           target="_blank">
+                            Participants
+                        </a></li>
+
+                    <li><a href="{% url 'evaluation_participants' %}">
+                            Evaluation of Participants
+                        </a></li>
 
                 </ul>
 
@@ -121,9 +128,12 @@
 
                 <ul class="dropdown-menu">
 
-                    <li><a href="/resource-persons/">Resource Persons</a></li>
+                    <li><a href="{% url 'resource_persons' %}">Resource Persons</a></li>
 
-                    <li><a href="/resource-pdf/">Resource Persons PDF</a></li>
+                    <li><a href="{% static 'pdf/resource_pdf.pdf' %}"
+                           target="_blank">
+                            Resource Persons PDF
+                        </a></li>
 
                 </ul>
 

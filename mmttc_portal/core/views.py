@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Course
 from .models import Applicant, Application
+from .models import ContactMessage
 
 
 def home(request):
@@ -1398,5 +1399,723 @@ def teaching_staff(request):
         'public/teaching_staff.html',
         {
             'title': 'Teaching Staff'
+        }
+    )
+
+def non_teaching_staff(request):
+
+    return render(
+        request,
+        'public/non_teaching_staff.html',
+        {
+            'title': 'Non Teaching Staff'
+        }
+    )
+
+def activities(request):
+
+    content = """
+
+    <h2>
+        Major Activities
+    </h2>
+
+    <ol>
+        <li>
+            National Seminar-cum-Workshop Series on Research Methodologies and Communication Skills (REMECOS), 19th March to 20th March 2007, organised by ASC-BHU.
+        </li>
+
+        <li>
+            National Conference on Air Pollution and Health Effects (NACAPHE), 28th March to 29th March 2007, organised by ASC-BHU.
+        </li>
+    </ol>
+
+    <h2>
+        Workshops / Seminars Organized in Collaboration with Departments
+    </h2>
+
+    <table class="info-table">
+
+        <tr>
+            <th>Sl. No.</th>
+            <th>Title of the Program</th>
+            <th>Date / Duration</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Total</th>
+        </tr>
+
+        <tr>
+            <td>1</td>
+            <td>Non-conventional Energy Resources in Dry Tropics (Dept. of Physics, BHU)</td>
+            <td>30th April, 1990</td>
+            <td>28</td>
+            <td>19</td>
+            <td>47</td>
+        </tr>
+
+        <tr>
+            <td>2</td>
+            <td>Fractals (Dept. of Physics, BHU)</td>
+            <td>2nd May, 1990</td>
+            <td>32</td>
+            <td>10</td>
+            <td>42</td>
+        </tr>
+
+        <tr>
+            <td>3</td>
+            <td>Role of Growth Centres in the Economic Development of Eastern U.P. (Dept. of Economics, BHU)</td>
+            <td>14th July, 1990</td>
+            <td>28</td>
+            <td>15</td>
+            <td>43</td>
+        </tr>
+
+        <tr>
+            <td>4</td>
+            <td>Girl Child and Family (Dept. of Sociology, BHU)</td>
+            <td>4th August, 1990</td>
+            <td>15</td>
+            <td>35</td>
+            <td>50</td>
+        </tr>
+
+        <tr>
+            <td>5</td>
+            <td>Prof. U. C. Nag Memorial Annual Lecture (Dept. of English, BHU)</td>
+            <td>Sept. 9-11, 1993</td>
+            <td>30</td>
+            <td>35</td>
+            <td>65</td>
+        </tr>
+
+        <tr>
+            <td>6</td>
+            <td>New Directions in Indian English Literature (Dept. of English)</td>
+            <td>Sept. 8-10, 1994</td>
+            <td>25</td>
+            <td>30</td>
+            <td>55</td>
+        </tr>
+
+        <tr>
+            <td>7</td>
+            <td>University Accounts and Audits (Office of Registrar, BHU)</td>
+            <td>December 6-10, 1994</td>
+            <td>25</td>
+            <td>05</td>
+            <td>30</td>
+        </tr>
+
+        <tr>
+            <td>8</td>
+            <td>XVII Dr. U. G. Nag Memorial Lecture (Dept. of English, BHU)</td>
+            <td>January 27-28, 1995</td>
+            <td>30</td>
+            <td>40</td>
+            <td>70</td>
+        </tr>
+
+        <tr>
+            <td>9</td>
+            <td>Ecology: Current Problem and Future Perspective (Dept. of Botany, BHU)</td>
+            <td>March 10-12, 1995</td>
+            <td>40</td>
+            <td>25</td>
+            <td>65</td>
+        </tr>
+
+        <tr>
+            <td>10</td>
+            <td>Academic Interaction between India and Canada: Retrospect & Prospect (CSDP, Dept. of Political Science, BHU)</td>
+            <td>Nov. 19-20, 1995</td>
+            <td>52</td>
+            <td>26</td>
+            <td>78</td>
+        </tr>
+
+        <tr>
+            <td>11</td>
+            <td>DST/PAC Meeting on Plant Sciences (Dept. of Botany, BHU)</td>
+            <td>October 12-13, 1995</td>
+            <td>15</td>
+            <td>05</td>
+            <td>20</td>
+        </tr>
+
+        <tr>
+            <td>12</td>
+            <td>Changing Scenario of Plant Sciences (Dept. of Botany, BHU)</td>
+            <td>Oct. 13-15, 1995</td>
+            <td>60</td>
+            <td>60</td>
+            <td>120</td>
+        </tr>
+
+        <tr>
+            <td>13</td>
+            <td>Ethnic Harmony in a Multicultural Society: Lessons from Canada & India (CSDP, Dept. of Political Science, BHU)</td>
+            <td>February 21, 1996</td>
+            <td>72</td>
+            <td>15</td>
+            <td>87</td>
+        </tr>
+
+        <tr>
+            <td>14</td>
+            <td>Frontiers of Molecular Biology, Molecular Biology Unit, IMS, BHU</td>
+            <td>February 7, 1997</td>
+            <td>28</td>
+            <td>20</td>
+            <td>48</td>
+        </tr>
+
+        <tr>
+            <td>15</td>
+            <td>Challenges of Multiculturalism: India and Canada (CSDP, Dept. of Political Science, BHU)</td>
+            <td>February 19-20, 1997</td>
+            <td>23</td>
+            <td>22</td>
+            <td>45</td>
+        </tr>
+
+        <tr>
+            <td>16</td>
+            <td>Regionalism: Canadian and Indian Perspectives (CSDP, Dept. of Political Science, BHU)</td>
+            <td>February 3-4, 1998</td>
+            <td>50</td>
+            <td>25</td>
+            <td>75</td>
+        </tr>
+
+        <tr>
+            <td>17</td>
+            <td>English Literature of SAARC Countries (Dept. of English, BHU)</td>
+            <td>February 23-25, 1998</td>
+            <td>60</td>
+            <td>28</td>
+            <td>88</td>
+        </tr>
+
+        <tr>
+            <td>18</td>
+            <td>Seminar by CSDP, Dept. of Political Science, BHU</td>
+            <td>January 20-21, 1999</td>
+            <td>40</td>
+            <td>35</td>
+            <td>75</td>
+        </tr>
+
+        <tr>
+            <td>19</td>
+            <td>Seminar by CSDP, Dept. of Political Science, BHU</td>
+            <td>February 5-6, 2000</td>
+            <td>35</td>
+            <td>30</td>
+            <td>55</td>
+        </tr>
+
+        <tr>
+            <td>20</td>
+            <td>Seminar by CSDP, Dept. of Political Science, BHU</td>
+            <td>January 27-28, 2001</td>
+            <td>45</td>
+            <td>35</td>
+            <td>80</td>
+        </tr>
+
+        <tr>
+            <td>21</td>
+            <td>Seminar by CSDP, Dept. of Political Science, BHU</td>
+            <td>February 10-11, 2001</td>
+            <td>30</td>
+            <td>40</td>
+            <td>70</td>
+        </tr>
+
+        <tr>
+            <td>22</td>
+            <td>Higher Education in India and Canada (CSDP, Dept. of Political Science, BHU)</td>
+            <td>January 24-25, 2003</td>
+            <td>38</td>
+            <td>40</td>
+            <td>78</td>
+        </tr>
+
+        <tr>
+            <td>23</td>
+            <td>VIII Group Meeting of AINP on Agricultural Acarology (IAS, BHU)</td>
+            <td>March 28-29, 2003</td>
+            <td>25</td>
+            <td>20</td>
+            <td>45</td>
+        </tr>
+
+        <tr>
+            <td>24</td>
+            <td>Winter School on Communication Support for Sustainable Development (Institute of Agricultural Sciences, BHU)</td>
+            <td>October 9-29, 2004</td>
+            <td>20</td>
+            <td>07</td>
+            <td>27</td>
+        </tr>
+
+        <tr>
+            <td>25</td>
+            <td>International Seminar on Nissim Ezekiel and Indian Literature in English</td>
+            <td>January 18-19, 2005</td>
+            <td>90</td>
+            <td>50</td>
+            <td>140</td>
+        </tr>
+
+        <tr>
+            <td>26</td>
+            <td>Seminar on Indo-Canadian Relations by CSDP, Dept. of Political Science, BHU</td>
+            <td>November 21-22, 2005</td>
+            <td>20</td>
+            <td>35</td>
+            <td>55</td>
+        </tr>
+
+        <tr>
+            <td>27</td>
+            <td>National Seminar on Digital Preservation of Manuscripts and Rare Materials by Central Library, BHU</td>
+            <td>December 24, 2005</td>
+            <td>30</td>
+            <td>15</td>
+            <td>45</td>
+        </tr>
+
+        <tr>
+            <td>28</td>
+            <td>Workshop by Dept. of English, BHU</td>
+            <td>Feb. 7-8, 2006</td>
+            <td>35</td>
+            <td>10</td>
+            <td>45</td>
+        </tr>
+
+        <tr>
+            <td>29</td>
+            <td>International Seminar on W. H. Auden and His Contemporary Relevance by Dept. of English</td>
+            <td>September 14-15, 2006</td>
+            <td>45</td>
+            <td>20</td>
+            <td>65</td>
+        </tr>
+
+    </table>
+
+    <h2>
+        Other Programs Organized
+    </h2>
+
+    <table class="info-table">
+
+        <tr>
+            <th>Sl. No.</th>
+            <th>Title of the Program</th>
+            <th>Date / Duration</th>
+            <th>Male</th>
+            <th>Female</th>
+            <th>Total</th>
+        </tr>
+
+        <tr>
+            <td>1</td>
+            <td>Engineering Course (AICTE funded, New Delhi)</td>
+            <td>May 8-29, 1995</td>
+            <td>20</td>
+            <td>04</td>
+            <td>24</td>
+        </tr>
+
+        <tr>
+            <td>2</td>
+            <td>RC in Philosophy (ICPR funded, New Delhi)</td>
+            <td>Feb. 8-28, 2005</td>
+            <td>31</td>
+            <td>09</td>
+            <td>40</td>
+        </tr>
+
+        <tr>
+            <td>3</td>
+            <td>Workshop on Healthy Aging</td>
+            <td>Nov. 14-18, 2005</td>
+            <td>40</td>
+            <td>15</td>
+            <td>55</td>
+        </tr>
+
+    </table>
+
+    """
+
+    return render(
+        request,
+        'public/info_page.html',
+        {
+            'title': 'Activities',
+            'content': content
+        }
+    )
+
+def terms_conditions(request):
+
+    content = """
+
+    <h2>
+        Eligibility and Terms & Conditions
+    </h2>
+
+    <ol>
+
+        <li>
+            Teachers working in Universities and Colleges included under Section 2(f) of the UGC Act are eligible to participate in Orientation Programmes and Refresher Courses. Teachers of colleges affiliated to a university for at least two years may also participate. However, such participants will not be entitled to TA/DA and other allowances.
+            <br><br>
+            For Orientation Programmes, newly appointed Assistant Professors within two years of continuous service and teachers requiring orientation for career advancement are eligible.
+            <br><br>
+            For Refresher Courses, the eligibility requirement for teachers who have not attended an Orientation Course has been reduced to two years. Normally, a gap of one year should be maintained between two Refresher Courses.
+        </li>
+
+        <br>
+
+        <li>
+            Every participant must pay a non-refundable registration fee of Rs. 1000 through Demand Draft along with the acceptance letter.
+        </li>
+
+        <br>
+
+        <li>
+            Limited dormitory-type accommodation is available for outstation participants on a chargeable basis. Participants will receive TA/DA according to UGC norms. Boarding expenses may have to be partially borne by participants.
+        </li>
+
+        <br>
+
+        <li>
+            Outstation participants travelling from a distance of more than 500 km will be reimbursed single return First Class railway fare through the shortest route on successful completion of the course. Original railway tickets for both onward and return journeys must be submitted. Otherwise, reimbursement will be restricted to Sleeper Class fare.
+            <br><br>
+            Participants travelling from less than 500 km will be reimbursed Second Class fare only.
+        </li>
+
+        <br>
+
+        <li>
+            Free boarding and lodging facilities are provided to outstation participants during the programme. No separate DA will be paid for the course period. Local participants are provided lunch, tea and refreshments as per UGC norms.
+        </li>
+
+        <br>
+
+        <li>
+            Participants must bring two passport-size photographs at the time of registration.
+        </li>
+
+        <br>
+
+        <li>
+            The course is conducted on a full-time basis, six days a week, including holidays except Sundays. A detailed programme schedule is provided during registration.
+        </li>
+
+        <br>
+
+        <li>
+            Every participant is required to deliver a seminar or lecture of 15 minutes duration followed by 5 minutes of discussion on a topic related to the course theme.
+            <br><br>
+            Participants must bring their own presentation materials and submit a typed write-up of the seminar on A4-size paper at the time of registration.
+        </li>
+
+        <br>
+
+        <li>
+            All participants must complete registration on the inaugural day at the Academic Staff College, Central Library Complex, BHU. Failure to do so will result in cancellation of admission.
+        </li>
+
+        <br>
+
+        <li>
+            Participants are expected to provide feedback and suggestions regarding lectures, programme components, and fellow participants' seminars.
+        </li>
+
+        <br>
+
+        <li>
+            Participants must attend all sessions sincerely and regularly. No leave will be granted during the programme.
+        </li>
+
+        <br>
+
+        <li>
+            Certificates of participation will be awarded only to those participants who successfully complete all programme requirements.
+            <br><br>
+            In case of any violation or default, the Director of the Academic Staff College, BHU reserves the right to cancel admission, withhold TA/DA payments, or deny issuance of certificates. Decisions in such cases shall be final.
+        </li>
+
+    </ol>
+
+    """
+
+    return render(
+        request,
+        'public/info_page.html',
+        {
+            'title': 'Terms and Conditions',
+            'content': content
+        }
+    )
+
+def evaluation_participants(request):
+
+    content = """
+
+    <h2>
+        Evaluation of Participants
+    </h2>
+
+    <p>
+        Whenever required, participants may be assessed by experts, preferably external experts, through multiple-choice objective tests and other evaluation methods conducted during the programme.
+    </p>
+
+    <h2>
+        Grading System
+    </h2>
+
+    <table class="info-table">
+
+        <tr>
+            <th>Grade</th>
+            <th>Percentage</th>
+        </tr>
+
+        <tr>
+            <td>A</td>
+            <td>75% and above</td>
+        </tr>
+
+        <tr>
+            <td>B</td>
+            <td>60% to less than 75%</td>
+        </tr>
+
+        <tr>
+            <td>C</td>
+            <td>50% to less than 60%</td>
+        </tr>
+
+        <tr>
+            <td>D</td>
+            <td>Below 50%</td>
+        </tr>
+
+    </table>
+
+    <p>
+        Participants obtaining Grade D are required to repeat the programme after a gap of one year without financial commitment from UGC-HRDC.
+    </p>
+
+    <h2>
+        Distribution of Marks
+    </h2>
+
+    <table class="info-table">
+
+        <tr>
+            <th>Component</th>
+            <th>Marks</th>
+        </tr>
+
+        <tr>
+            <td>Multiple-choice Objective Tests</td>
+            <td>30</td>
+        </tr>
+
+        <tr>
+            <td>Seminars / Participant Presentation</td>
+            <td>15</td>
+        </tr>
+
+        <tr>
+            <td>Project / Survey / Other Activities</td>
+            <td>20</td>
+        </tr>
+
+        <tr>
+            <td>Micro-Teaching / Participation</td>
+            <td>10</td>
+        </tr>
+
+        <tr>
+            <td>Holistic Response (Punctuality, Regularity, Initiative, Conduct, Responsiveness, etc.)</td>
+            <td>25</td>
+        </tr>
+
+        <tr>
+            <th>Total</th>
+            <th>100</th>
+        </tr>
+
+    </table>
+
+    <p>
+        The distribution of marks may be modified to suit specific programme requirements.
+    </p>
+
+    <p>
+        Certificates issued to participants are valid only when supported by the grade obtained through the evaluation process.
+    </p>
+
+    """
+
+    return render(
+        request,
+        'public/info_page.html',
+        {
+            'title': 'Evaluation of Participants',
+            'content': content
+        }
+    )
+
+def resource_persons(request):
+
+    content = """
+
+    <h2>
+        Resource Persons
+    </h2>
+
+    <p>
+        Resource persons play an important role in the successful conduct of Orientation Programmes, Refresher Courses, Workshops, and other academic activities organized by HRDC-BHU.
+    </p>
+
+    <h2>
+        Travel Allowance and Daily Allowance
+    </h2>
+
+    <p>
+        Outstation resource persons are paid Travel Allowance (TA) and Daily Allowance (DA) according to the prescribed norms.
+    </p>
+
+    <h2>
+        Honorarium
+    </h2>
+
+    <p>
+        Honorarium may be paid to both local and outstation resource persons at the rate of:
+    </p>
+
+    <ul>
+
+        <li>
+            Rs. 1,500 per session of 90 minutes.
+        </li>
+
+        <li>
+            Maximum Rs. 3,000 per day.
+        </li>
+
+        <li>
+            Maximum Rs. 6,000 per course.
+        </li>
+
+    </ul>
+
+    <h2>
+        Outstation Resource Persons
+    </h2>
+
+    <p>
+        Outstation resource persons are normally invited only once during a programme.
+    </p>
+
+    <h2>
+        Local Resource Persons
+    </h2>
+
+    <p>
+        Local resource persons may be reimbursed actual conveyance charges up to Rs. 500 each way.
+    </p>
+
+    """
+
+    return render(
+        request,
+        'public/info_page.html',
+        {
+            'title': 'Resource Persons',
+            'content': content
+        }
+    )
+
+def contact_us(request):
+
+    if request.method == 'POST':
+
+        name = request.POST.get('name')
+
+        email = request.POST.get('email')
+
+        subject = request.POST.get('subject')
+
+        message = request.POST.get('message')
+
+        ContactMessage.objects.create(
+            name=name,
+            email=email,
+            subject=subject,
+            message=message
+        )
+
+        return render(
+            request,
+            'public/contact_us.html',
+            {'success': True}
+        )
+
+    return render(
+        request,
+        'public/contact_us.html'
+    )
+
+def gallery(request):
+
+    content = """
+
+    <h2>
+        Gallery
+    </h2>
+
+    <p style="text-align:center;
+              font-size:20px;
+              padding:40px 0;">
+        Photos will appear here.
+    </p>
+
+    """
+
+    return render(
+        request,
+        'public/info_page.html',
+        {
+            'title': 'Gallery',
+            'content': content
+        }
+    )
+
+@login_required
+def view_messages(request):
+
+    if not request.user.is_staff:
+
+        return redirect('/dashboard/')
+
+    messages = ContactMessage.objects.all().order_by('-created_at')
+
+    return render(
+        request,
+        'admin_panel/view_messages.html',
+        {
+            'messages': messages
         }
     )

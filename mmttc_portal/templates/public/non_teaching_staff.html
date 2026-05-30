@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Non Teaching Staff
+{% endblock %}
+
+{% block content %}
+
+<div class="info-box">
+
+    <div class="info-box-header">
+
+        <h1>
+            Non Teaching Staff
+        </h1>
+
+    </div>
+
+    <div class="info-box-content">
+
+        <div class="staff-container">
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/so.jpeg' %}"
+                     alt="Section Officer">
+
+                <h3>
+                    Shri Mahesh Kumar Bhavsinghka
+                </h3>
+
+                <p>
+                    Section Officer
+                </p>
+
+            </div>
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/office_assistant.jpeg' %}"
+                     alt="Office Assistant">
+
+                <h3>
+                    Shri Nityanand Patel
+                </h3>
+
+                <p>
+                    Office Assistant
+                </p>
+
+            </div>
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/hostel_attendant.jpg' %}"
+                     alt="Hostel Attendant">
+
+                <h3>
+                    Shri Govind Bahadur Rana
+                </h3>
+
+                <p>
+                    Hostel Attendant
+                </p>
+
+            </div>
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/peon.jpg' %}"
+                     alt="Peon">
+
+                <h3>
+                    Shri Sher Jung Thapa
+                </h3>
+
+                <p>
+                    Peon
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
