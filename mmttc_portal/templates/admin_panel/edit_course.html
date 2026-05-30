@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Edit Course
+{% endblock %}
+
+{% block content %}
+
+<h1>Edit Course</h1>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>Course Title</label>
+
+    <input type="text"
+           name="title"
+           value="{{ course.title }}">
+
+    <label>Duration</label>
+
+    <input type="text"
+           name="duration"
+           value="{{ course.duration }}">
+
+    <label>Start Date</label>
+
+    <input type="date"
+           name="start_date"
+           value="{{ course.start_date|date:'Y-m-d' }}">
+
+    <label>End Date</label>
+
+    <input type="date"
+           name="end_date"
+           value="{{ course.end_date|date:'Y-m-d' }}">
+
+    <label>Eligibility</label>
+
+    <textarea name="eligibility">{{ course.eligibility }}</textarea>
+
+    <label>Seats</label>
+
+    <input type="number"
+           name="seats"
+           value="{{ course.seats }}">
+
+    <label>Description</label>
+
+    <textarea name="description">{{ course.description }}</textarea>
+
+    <button type="submit">
+        Update Course
+    </button>
+
+</form>
+
+{% endblock %}

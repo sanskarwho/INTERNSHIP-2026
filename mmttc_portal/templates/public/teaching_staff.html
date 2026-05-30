@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}
+Teaching Staff
+{% endblock %}
+
+{% block content %}
+
+<div class="info-box">
+
+    <div class="info-box-header">
+
+        <h1>
+            Teaching Staff
+        </h1>
+
+    </div>
+
+    <div class="info-box-content">
+
+        <div class="staff-container">
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/director_photo.jpeg' %}"
+                     alt="Director">
+
+                <h3>
+                    Prof. Anand Vardhan Sharma
+                </h3>
+
+                <p>
+                    Director
+                </p>
+
+            </div>
+
+            <div class="staff-card">
+
+                <img src="{% static 'images/sktiwari.jpg' %}"
+                     alt="Dr. S K Tiwari">
+
+                <h3>
+                    Dr. S. K. Tiwari
+                </h3>
+
+                <p>
+                    Associate Professor
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

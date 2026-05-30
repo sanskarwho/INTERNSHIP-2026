@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Admin Dashboard
+</h1>
+
+<div class="dashboard-container">
+
+    <div class="dashboard-card">
+
+        <h2>Create Course</h2>
+
+        <p>
+            Add new MMTTC courses.
+        </p>
+
+        <a href="/create-course/">
+            Open
+        </a>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Manage Courses</h2>
+
+        <p>
+            Edit or close courses.
+        </p>
+
+        <a href="/manage-courses/">
+            Open
+        </a>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>View Applications</h2>
+
+        <p>
+            Check submitted applications.
+        </p>
+
+        <a href="/view-applications/">
+            Open
+        </a>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Verify Documents</h2>
+
+        <p>
+            Verify uploaded files.
+        </p>
+
+        <a href="/verify-documents/">
+            Open
+        </a>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Generate Certificates</h2>
+
+        <p>
+            Generate certificates for participants.
+        </p>
+
+        <a href="/generate-certificate/">
+            Open
+        </a>
+
+    </div>
+
+    <div class="dashboard-card">
+
+        <h2>Reports</h2>
+
+        <p>
+            View statistics and reports.
+        </p>
+
+        <a href="/reports/">
+            Open
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

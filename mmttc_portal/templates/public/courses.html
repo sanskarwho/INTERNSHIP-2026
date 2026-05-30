@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Courses
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Available Courses
+</h1>
+
+{% for course in courses %}
+
+<div class="course-card">
+
+    <h2>
+        {{ course.title }}
+    </h2>
+
+    <p>
+        <strong>Duration:</strong>
+        {{ course.duration }}
+    </p>
+
+    <p>
+        <strong>Start Date:</strong>
+        {{ course.start_date }}
+    </p>
+
+    <p>
+        <strong>End Date:</strong>
+        {{ course.end_date }}
+    </p>
+
+    <p>
+        <strong>Eligibility:</strong>
+        {{ course.eligibility }}
+    </p>
+
+    <p>
+        <strong>Seats:</strong>
+        {{ course.seats }}
+    </p>
+
+    <h3>
+        Course Description
+    </h3>
+
+    <p>
+        {{ course.description }}
+    </p>
+
+    <a href="/apply-course/{{ course.id }}/"
+       class="apply-btn">
+
+        Apply Now
+
+    </a>
+
+</div>
+
+{% empty %}
+
+<p>
+    No courses available.
+</p>
+
+{% endfor %}
+
+{% endblock %}
