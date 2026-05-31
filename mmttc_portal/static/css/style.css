@@ -660,3 +660,77 @@ button:hover {
 
     box-sizing: border-box;
 }
+
+.application-form {
+
+    max-width: 900px;
+
+    margin: auto;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.application-form h2 {
+
+    color: #4f81bd;
+
+    margin-top: 30px;
+
+    border-bottom: 1px solid #ccc;
+
+    padding-bottom: 5px;
+}
+
+.application-form label {
+
+    font-weight: bold;
+
+    margin-top: 8px;
+}
+
+.application-form input,
+.application-form select,
+.application-form textarea {
+
+    padding: 10px;
+
+    border: 1px solid #aaa;
+
+    border-radius: 4px;
+
+    font-size: 15px;
+
+    width: 100%;
+
+    box-sizing: border-box;
+}
+
+.application-form button {
+
+    width: 220px;
+
+    margin-top: 25px;
+
+    padding: 12px;
+
+    background-color: #0056b3;
+
+    color: white;
+
+    border: none;
+
+    border-radius: 5px;
+
+    cursor: pointer;
+
+    font-weight: bold;
+}
+
+.application-form button:hover {
+
+    background-color: #003f85;
+}

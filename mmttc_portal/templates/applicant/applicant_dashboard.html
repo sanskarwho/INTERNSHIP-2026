@@ -6,9 +6,7 @@ Applicant Dashboard
 
 {% block content %}
 
-<h1>
-    Applicant Dashboard
-</h1>
+<h1>Applicant Dashboard</h1>
 
 <h3>
     Welcome, {{ request.user.username }}
@@ -17,99 +15,33 @@ Applicant Dashboard
 <div class="dashboard-container">
 
     <div class="dashboard-card">
-
-        <h2>
-            Available Courses
-        </h2>
-
-        <p>
-            View and apply for MMTTC courses.
-        </p>
-
-        <a href="/courses/">
-            View Courses
-        </a>
-
+        <h2>Apply Online</h2>
+        <p>Fill and submit a new application form.</p>
+        <a href="/apply-online/">Apply Now</a>
     </div>
 
     <div class="dashboard-card">
-
-        <h2>
-            My Applications
-        </h2>
-
-        <p>
-            Check submitted applications.
-        </p>
-
-        <a href="/my-applications/">
-            Open
-        </a>
-
+        <h2>My Applications</h2>
+        <p>View submitted applications and download generated PDFs.</p>
+        <a href="/my-applications/">Open</a>
     </div>
 
     <div class="dashboard-card">
-
-        <h2>
-            Upload Documents
-        </h2>
-
-        <p>
-            Upload required files and forms.
-        </p>
-
-        <a href="/upload-documents/">
-            Upload
-        </a>
-
+        <h2>Reupload Signed Form</h2>
+        <p>Upload signed and sealed application forms.</p>
+        <a href="/reupload-form/">Upload</a>
     </div>
 
     <div class="dashboard-card">
-
-        <h2>
-            Re-upload Signed Form
-        </h2>
-
-        <p>
-            Upload HoD approved application form.
-        </p>
-
-        <a href="/reupload-form/">
-            Upload
-        </a>
-
+        <h2>Application Status</h2>
+        <p>Track approval and verification status.</p>
+        <a href="/application-status/">View Status</a>
     </div>
 
     <div class="dashboard-card">
-
-        <h2>
-            Application Status
-        </h2>
-
-        <p>
-            Track approval/rejection status.
-        </p>
-
-        <a href="/application-status/">
-            View
-        </a>
-
-    </div>
-
-    <div class="dashboard-card">
-
-        <h2>
-            Certificates
-        </h2>
-
-        <p>
-            Download course certificates.
-        </p>
-
-        <a href="/download-certificate/">
-            Download
-        </a>
-
+        <h2>Certificates</h2>
+        <p>Download certificates for completed courses.</p>
+        <a href="/certificates/">Open</a>
     </div>
 
 </div>

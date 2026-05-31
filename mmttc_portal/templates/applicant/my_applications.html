@@ -6,54 +6,42 @@ My Applications
 
 {% block content %}
 
-<h1>
-    My Applications
-</h1>
+<h1>My Applications</h1>
 
-<table border="1" cellpadding="10">
+<table class="info-table">
 
     <tr>
-
-        <th>
-            Course
-        </th>
-
-        <th>
-            Status
-        </th>
-
-        <th>
-            Applied On
-        </th>
-
+        <th>Course</th>
+        <th>Submitted Date</th>
+        <th>Download PDF</th>
     </tr>
 
     {% for application in applications %}
 
     <tr>
-
         <td>
             {{ application.course.title }}
-        </td>
-
-        <td>
-            {{ application.status }}
+            <br>
+            ({{ application.course.start_date }} - {{ application.course.end_date }})
         </td>
 
         <td>
             {{ application.application_date }}
         </td>
 
+        <td>
+            <a href="#">
+                Download PDF
+            </a>
+        </td>
     </tr>
 
     {% empty %}
 
     <tr>
-
         <td colspan="3">
-            No applications submitted.
+            No applications submitted yet.
         </td>
-
     </tr>
 
     {% endfor %}

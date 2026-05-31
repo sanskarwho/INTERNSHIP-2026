@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Apply Online
+{% endblock %}
+
+{% block content %}
+
+<div class="info-box">
+
+    <div class="info-box-header">
+        <h1>Apply Online</h1>
+    </div>
+
+    <div class="info-box-content">
+
+        {% if error %}
+        <p style="color: red; font-weight: bold;">
+            {{ error }}
+        </p>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" class="application-form">
+
+            {% csrf_token %}
+
+            <h2>Course Details</h2>
+
+            <label>Select Course</label>
+            <select name="course" required>
+                <option value="">-- Select Course --</option>
+
+                {% for course in courses %}
+                <option value="{{ course.id }}">
+                    {{ course.title }} ({{ course.start_date }} - {{ course.end_date }})
+                </option>
+                {% endfor %}
+            </select>
+
+            <h2>Personal Details</h2>
+
+            <label>Title</label>
+            <select name="title">
+                <option value="">-- Select --</option>
+                <option>Mr.</option>
+                <option>Ms.</option>
+                <option>Mrs.</option>
+                <option>Dr.</option>
+                <option>Prof.</option>
+            </select>
+
+            <label>Full Name</label>
+            <input type="text" name="full_name" required>
+
+            <label>Category</label>
+            <select name="category">
+                <option value="">-- Select --</option>
+                <option>General</option>
+                <option>OBC</option>
+                <option>SC</option>
+                <option>ST</option>
+                <option>EWS</option>
+            </select>
+
+            <label>Person with Disability</label>
+            <select name="is_pwd">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+
+            <label>Aadhaar Number</label>
+            <input type="text" name="aadhaar_number">
+
+            <label>Photograph</label>
+            <input type="file" name="photograph" accept="image/*">
+
+            <label>Date of Birth</label>
+            <input type="date" name="date_of_birth">
+
+            <h2>Service Details</h2>
+
+            <label>Applicant Type</label>
+            <select name="applicant_type">
+                <option value="">-- Select --</option>
+                <option>Faculty</option>
+                <option>Researcher</option>
+                <option>Non-Teaching Staff</option>
+            </select>
+
+            <label>Present Designation</label>
+            <input type="text" name="present_designation">
+
+            <label>Date of Appointment</label>
+            <input type="date" name="appointment_date">
+
+            <label>Scale of Pay</label>
+            <input type="text" name="scale_of_pay">
+
+            <label>Nature of Appointment</label>
+            <select name="nature_of_appointment">
+                <option value="">-- Select --</option>
+                <option>Permanent</option>
+                <option>Temporary</option>
+                <option>Ad-hoc</option>
+                <option>Contractual</option>
+            </select>
+
+            <h2>Official Address</h2>
+
+            <label>Official Address</label>
+            <textarea name="official_address" rows="4"></textarea>
+
+            <label>State</label>
+            <input type="text" name="official_state">
+
+            <label>PIN Code</label>
+            <input type="text" name="official_pin">
+
+            <h2>Mailing Address</h2>
+
+            <label>Mailing Address</label>
+            <textarea name="mailing_address" rows="4"></textarea>
+
+            <label>State</label>
+            <input type="text" name="mailing_state">
+
+            <label>PIN Code</label>
+            <input type="text" name="mailing_pin">
+
+            <h2>Contact Details</h2>
+
+            <label>Mobile Number</label>
+            <input type="text" name="mobile_number">
+
+            <label>Alternate Number</label>
+            <input type="text" name="alternate_number">
+
+            <label>Email</label>
+            <input type="email" name="email">
+
+            <h2>Academic Details</h2>
+
+            <label>Highest Qualification</label>
+            <input type="text" name="highest_qualification">
+
+            <label>Qualification Status</label>
+            <select name="qualification_status">
+                <option value="">-- Select --</option>
+                <option>Completed</option>
+                <option>Pursuing</option>
+            </select>
+
+            <label>Subject / Specialization</label>
+            <input type="text" name="subject_specialization">
+
+            <h2>Earlier Attended Course</h2>
+
+            <label>Have you attended any earlier course?</label>
+            <select name="earlier_course_attended">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+
+            <label>Earlier Course Name</label>
+            <input type="text" name="earlier_course_name">
+
+            <label>Place</label>
+            <input type="text" name="earlier_course_place">
+
+            <label>Duration</label>
+            <input type="text" name="earlier_course_duration">
+
+            <h2>Accommodation</h2>
+
+            <label>Accommodation Required?</label>
+            <select name="accommodation_required">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+
+            <h2>Document Uploads</h2>
+
+            <label>Appointment Letter</label>
+            <input type="file" name="appointment_letter">
+
+            <label>Relieving Order / NOC</label>
+            <input type="file" name="relieving_order">
+
+            <label>ID Proof</label>
+            <input type="file" name="id_proof">
+
+            <label>Signature</label>
+            <input type="file" name="signature" accept="image/*">
+
+            <label>Other Document</label>
+            <input type="file" name="other_document">
+
+            <h2>Declaration</h2>
+
+            <p>
+                I hereby declare that the information provided above is true and correct to the best of my knowledge.
+            </p>
+
+            <label>
+                <input type="checkbox" required>
+                I agree to the declaration.
+            </label>
+
+            <button type="submit">
+                Submit Application
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

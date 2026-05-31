@@ -46,40 +46,42 @@ def login_page(request):
                   'public/login.html')
 
 
-# REGISTER
-
 def register_page(request):
 
     if request.method == 'POST':
 
         username = request.POST.get('username')
-
         email = request.POST.get('email')
-
         password = request.POST.get('password')
 
+        if User.objects.filter(username=username).exists():
+
+            return render(request,
+                          'public/register.html',
+                          {
+                              'error': 'Username already exists. Please choose another username.'
+                          })
+        
+        if User.objects.filter(email=email).exists():
+
+            return render(request,
+                        'public/register.html',
+                        {
+                            'error': 'Email already registered.'
+                        })
+
         user = User.objects.create_user(
-
             username=username,
-
             email=email,
-
             password=password
-
         )
 
         Applicant.objects.create(
-
             user=user,
-
             phone='',
-
             institution='',
-
             designation='',
-
             state=''
-
         )
 
         return redirect('/login/')
@@ -323,11 +325,15 @@ def my_applications(request):
 
     applications = Application.objects.filter(
         applicant=applicant
-    )
+    ).order_by('-application_date')
 
-    return render(request,
-                  'applicant/my_applications.html',
-                  {'applications': applications})
+    return render(
+        request,
+        'applicant/my_applications.html',
+        {
+            'applications': applications
+        }
+    )
 
 def info_page(request, title, content):
 
@@ -2119,3 +2125,113 @@ def view_messages(request):
             'messages': messages
         }
     )
+
+@login_required
+def apply_online(request):
+
+    if request.user.is_staff:
+        return redirect('/admin-dashboard/')
+
+    applicant = Applicant.objects.get(user=request.user)
+
+    courses = Course.objects.all().order_by('-start_date')
+
+    if request.method == 'POST':
+
+        course_id = request.POST.get('course')
+
+        course = Course.objects.get(id=course_id)
+
+        already_applied = Application.objects.filter(
+            applicant=applicant,
+            course=course
+        ).exists()
+
+        if already_applied:
+            return render(
+                request,
+                'applicant/apply_online.html',
+                {
+                    'courses': courses,
+                    'error': 'You have already applied for this course.'
+                }
+            )
+
+        Application.objects.create(
+
+            applicant=applicant,
+            course=course,
+
+            title=request.POST.get('title'),
+            full_name=request.POST.get('full_name'),
+            category=request.POST.get('category'),
+            is_pwd=True if request.POST.get('is_pwd') == 'yes' else False,
+            aadhaar_number=request.POST.get('aadhaar_number'),
+            photograph=request.FILES.get('photograph'),
+            date_of_birth=request.POST.get('date_of_birth'),
+
+            applicant_type=request.POST.get('applicant_type'),
+            present_designation=request.POST.get('present_designation'),
+            appointment_date=request.POST.get('appointment_date'),
+            scale_of_pay=request.POST.get('scale_of_pay'),
+            nature_of_appointment=request.POST.get('nature_of_appointment'),
+
+            official_address=request.POST.get('official_address'),
+            official_state=request.POST.get('official_state'),
+            official_pin=request.POST.get('official_pin'),
+
+            mailing_address=request.POST.get('mailing_address'),
+            mailing_state=request.POST.get('mailing_state'),
+            mailing_pin=request.POST.get('mailing_pin'),
+
+            mobile_number=request.POST.get('mobile_number'),
+            alternate_number=request.POST.get('alternate_number'),
+            email=request.POST.get('email'),
+
+            highest_qualification=request.POST.get('highest_qualification'),
+            qualification_status=request.POST.get('qualification_status'),
+            subject_specialization=request.POST.get('subject_specialization'),
+
+            earlier_course_attended=True if request.POST.get('earlier_course_attended') == 'yes' else False,
+            earlier_course_name=request.POST.get('earlier_course_name'),
+            earlier_course_place=request.POST.get('earlier_course_place'),
+            earlier_course_duration=request.POST.get('earlier_course_duration'),
+
+            accommodation_required=True if request.POST.get('accommodation_required') == 'yes' else False,
+
+            appointment_letter=request.FILES.get('appointment_letter'),
+            relieving_order=request.FILES.get('relieving_order'),
+            id_proof=request.FILES.get('id_proof'),
+            signature=request.FILES.get('signature'),
+            other_document=request.FILES.get('other_document'),
+
+            status='Submitted'
+        )
+
+        return redirect('/my-applications/')
+
+    return render(
+        request,
+        'applicant/apply_online.html',
+        {
+            'courses': courses
+        }
+    )
+
+
+@login_required
+def reupload_form(request):
+
+    return render(request, 'applicant/reupload_form.html')
+
+
+@login_required
+def application_status(request):
+
+    return render(request, 'applicant/application_status.html')
+
+
+@login_required
+def certificates(request):
+
+    return render(request, 'applicant/certificates.html')
