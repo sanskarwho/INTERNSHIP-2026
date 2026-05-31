@@ -14,13 +14,25 @@ Manage Courses
 
     <tr>
 
-        <th>Title</th>
+        <th>
+            Type
+        </th>
 
-        <th>Duration</th>
+        <th>
+            Course
+        </th>
 
-        <th>Seats</th>
+        <th>
+            Seat Status
+        </th>
 
-        <th>Actions</th>
+        <th>
+            Visibility
+        </th>
+
+        <th>
+            Actions
+        </th>
 
     </tr>
 
@@ -29,26 +41,96 @@ Manage Courses
     <tr>
 
         <td>
+            {{ course.course_code }}
+        </td>
+
+        <td>
+
+            {{ course.course_code }} :
             {{ course.title }}
+
+            <br>
+
+            ({{ course.start_date }} -
+            {{ course.end_date }})
+            ({{ course.mode }})
+
         </td>
 
         <td>
-            {{ course.duration }}
+
+            {% if course.seat_status == 'Vacant' %}
+
+                <strong>
+                    Vacant
+                </strong>
+
+                <br>
+
+                <a href="/mark-course-full/{{ course.id }}/"
+                class="table-action warning">
+                    Mark Full
+                </a>
+
+            {% else %}
+
+                <strong>
+                    Full
+                </strong>
+
+                <br>
+
+                <a href="/mark-course-vacant/{{ course.id }}/"
+                class="table-action success">
+                    Mark Vacant
+                </a>
+
+            {% endif %}
+
         </td>
 
         <td>
-            {{ course.seats }}
+
+            {% if course.is_visible %}
+
+                <strong>
+                    Visible
+                </strong>
+
+                <br>
+
+                <a href="/hide-course/{{ course.id }}/"
+                class="table-action warning">
+                    Hide
+                </a>
+
+            {% else %}
+
+                <strong>
+                    Hidden
+                </strong>
+
+                <br>
+
+                <a href="/show-course/{{ course.id }}/"
+                    class="table-action success">
+                    Show
+                </a>
+            {% endif %}
+
         </td>
 
         <td>
 
-            <a href="/edit-course/{{ course.id }}/">
+            <a href="/edit-course/{{ course.id }}/"
+            class="table-action neutral">
                 Edit
             </a>
 
-            |
+            <br>
 
-            <a href="/delete-course/{{ course.id }}/">
+            <a href="/delete-course/{{ course.id }}/"
+            class="table-action danger">
                 Delete
             </a>
 

@@ -6,21 +6,22 @@ class Course(models.Model):
 
     title = models.CharField(max_length=200)
 
-    duration = models.CharField(max_length=100)
+    course_type = models.CharField(max_length=100)
+
+    course_code = models.CharField(max_length=20)
+
+    mode = models.CharField(max_length=20)
 
     start_date = models.DateField()
 
     end_date = models.DateField()
 
-    eligibility = models.TextField()
-
-    seats = models.IntegerField()
-
-    description = models.TextField()
+    seat_status = models.CharField(
+        max_length=20,
+        default='Vacant'
+    )
 
     is_visible = models.BooleanField(default=True)
-
-    is_closed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

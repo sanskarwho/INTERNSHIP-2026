@@ -12,17 +12,39 @@ Edit Course
 
     {% csrf_token %}
 
+<label>Course Type</label>
+
+       <select name="course_type" required>
+              <option value="{{ course.course_type }}">
+                     {{ course.course_type }}
+              </option>
+              <option value="">-- Select Course Type --</option>
+              <option>Orientation Courses</option>
+              <option>Refresher Courses</option>
+              <option>Inter/Multi Disciplinary Refresher Courses</option>
+              <option>Short Term Courses</option>
+              <option>NEP</option>
+       </select>
+
     <label>Course Title</label>
 
     <input type="text"
            name="title"
            value="{{ course.title }}">
 
-    <label>Duration</label>
+       <label>Mode</label>
 
-    <input type="text"
-           name="duration"
-           value="{{ course.duration }}">
+              <select name="mode" required>
+
+              <option value="{{ course.mode }}">
+                     {{ course.mode }}
+              </option>
+
+              <option>Online</option>
+
+              <option>Offline</option>
+
+       </select>
 
     <label>Start Date</label>
 
@@ -36,19 +58,26 @@ Edit Course
            name="end_date"
            value="{{ course.end_date|date:'Y-m-d' }}">
 
-    <label>Eligibility</label>
+     <label>Seat Status</label>
 
-    <textarea name="eligibility">{{ course.eligibility }}</textarea>
+       <select name="seat_status" required>
+       <option value="{{ course.seat_status }}">
+              {{ course.seat_status }}
+       </option>
+       <option>Vacant</option>
+       <option>Full</option>
+       </select>
 
-    <label>Seats</label>
+     <label>Visibility</label>
 
-    <input type="number"
-           name="seats"
-           value="{{ course.seats }}">
-
-    <label>Description</label>
-
-    <textarea name="description">{{ course.description }}</textarea>
+       <select name="is_visible" required>
+       <option value="true">
+              Visible
+       </option>
+       <option value="false">
+              Hidden
+       </option>
+       </select>
 
     <button type="submit">
         Update Course

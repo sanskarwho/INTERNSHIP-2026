@@ -128,4 +128,34 @@ urlpatterns = [
      path('application-status/', views.application_status, name='application_status'),
 
      path('certificates/', views.certificates, name='certificates'),
+
+     path('success/', views.success_page, name='success_page'),
+
+     path('update-course-status/<int:id>/',
+     views.update_course_status,
+     name='update_course_status'),
+
+     path(
+    'mark-course-full/<int:id>/',
+    views.mark_course_full,
+    name='mark_course_full'
+     ),
+
+     path(
+     'mark-course-vacant/<int:id>/',
+     views.mark_course_vacant,
+     name='mark_course_vacant'
+     ),
+
+     path(
+     'hide-course/<int:id>/',
+     views.hide_course,
+     name='hide_course'
+     ),
+
+     path(
+     'show-course/<int:id>/',
+     views.show_course,
+     name='show_course'
+     ),
 ]

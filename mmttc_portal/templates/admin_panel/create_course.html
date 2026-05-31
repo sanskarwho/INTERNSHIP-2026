@@ -12,13 +12,28 @@ Create Course
 
     {% csrf_token %}
 
+    <label>Course Type</label>
+
+       <select name="course_type" required>
+              <option value="">-- Select Course Type --</option>
+              <option>Orientation Courses</option>
+              <option>Refresher Courses</option>
+              <option>Inter/Multi Disciplinary Refresher Courses</option>
+              <option>Short Term Courses</option>
+              <option>NEP</option>
+       </select>
+
     <label>Course Title</label>
     <input type="text"
            name="title">
 
-    <label>Duration</label>
-    <input type="text"
-           name="duration">
+       <label>Mode</label>
+
+              <select name="mode" required>
+              <option value="">-- Select Mode --</option>
+              <option>Online</option>
+              <option>Offline</option>
+       </select>
 
     <label>Start Date</label>
     <input type="date"
@@ -27,16 +42,6 @@ Create Course
     <label>End Date</label>
     <input type="date"
            name="end_date">
-
-    <label>Eligibility</label>
-    <textarea name="eligibility"></textarea>
-
-    <label>Seats</label>
-    <input type="number"
-           name="seats">
-
-    <label>Description</label>
-    <textarea name="description"></textarea>
 
     <button type="submit">
         Create Course

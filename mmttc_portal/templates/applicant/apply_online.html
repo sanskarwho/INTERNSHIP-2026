@@ -31,9 +31,9 @@ Apply Online
                 <option value="">-- Select Course --</option>
 
                 {% for course in courses %}
-                <option value="{{ course.id }}">
-                    {{ course.title }} ({{ course.start_date }} - {{ course.end_date }})
-                </option>
+                    <option value="{{ course.id }}">
+                        {{ course.course_code }} : {{ course.title }} ({{ course.start_date }} - {{ course.end_date }}) ({{ course.mode }})
+                    </option>
                 {% endfor %}
             </select>
 

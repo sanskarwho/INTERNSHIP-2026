@@ -734,3 +734,68 @@ button:hover {
 
     background-color: #003f85;
 }
+
+.table-action {
+
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    margin-top: 5px;
+
+    border-radius: 5px;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+.table-action.success {
+
+    background: #e8f5e9;
+
+    color: #2e7d32 !important;
+
+    border: 1px solid #2e7d32;
+}
+
+.table-action.warning {
+
+    background: #fff8e1;
+
+    color: #9a6700;
+
+    border: 1px solid #9a6700;
+}
+
+.table-action.neutral {
+
+    background: #eef3f8;
+
+    color: #0056b3;
+
+    border: 1px solid #0056b3;
+}
+
+.table-action.danger {
+
+    background: #ffebee;
+
+    color: #c62828;
+
+    border: 1px solid #c62828;
+}
+
+.table-action:hover {
+
+    opacity: 0.9;
+}
+
+.table-action.success:visited,
+.table-action.success:hover,
+.table-action.success:active {
+
+    color: #2e7d32 !important;
+}

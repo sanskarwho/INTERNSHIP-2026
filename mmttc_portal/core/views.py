@@ -140,39 +140,46 @@ def create_course(request):
 
         title = request.POST.get('title')
 
-        duration = request.POST.get('duration')
+        course_type = request.POST.get('course_type')
+
+        course_code_map = {
+            'Orientation Courses': 'OC',
+            'Refresher Courses': 'RC-I',
+            'Inter/Multi Disciplinary Refresher Courses': 'RC-II', 
+            'Short Term Courses': 'SC', 
+            'NEP': 'NEP', 
+            }
+
+        course_code = course_code_map.get(course_type, 'GEN')
+
+        mode = request.POST.get('mode')
 
         start_date = request.POST.get('start_date')
 
         end_date = request.POST.get('end_date')
 
-        eligibility = request.POST.get('eligibility')
-
-        seats = request.POST.get('seats')
-
-        description = request.POST.get('description')
-
         Course.objects.create(
 
             title=title,
 
-            duration=duration,
+            course_type=course_type,
+
+            course_code=course_code,
+
+            mode=mode,
 
             start_date=start_date,
 
             end_date=end_date,
 
-            eligibility=eligibility,
-
-            seats=seats,
-
-            description=description
-
         )
 
-    return render(request,
-                  'admin_panel/create_course.html')
-
+        return redirect('/success/?message=Course created successfully')
+    
+    return render(
+        request,
+        'admin_panel/create_course.html'
+    )
 
 # MANAGE COURSES
 
@@ -205,22 +212,34 @@ def edit_course(request, id):
 
         course.title = request.POST.get('title')
 
-        course.duration = request.POST.get('duration')
+        course_type = request.POST.get('course_type')
+
+        course_code_map = {
+            'Orientation Courses': 'OC',
+            'Refresher Courses': 'RC-I',
+            'Inter/Multi Disciplinary Refresher Courses': 'RC-II', 
+            'Short Term Courses': 'SC', 
+            'NEP': 'NEP', 
+            }
+
+
+        course.course_type = request.POST.get('course_type')
+
+        course.course_code = course_code_map.get(course_type, 'GEN')
 
         course.start_date = request.POST.get('start_date')
 
         course.end_date = request.POST.get('end_date')
 
-        course.eligibility = request.POST.get('eligibility')
+        course.mode = request.POST.get('mode')
 
-        course.seats = request.POST.get('seats')
+        course.seat_status = request.POST.get('seat_status')
 
-        course.description = request.POST.get('description')
+        course.is_visible = True if request.POST.get('is_visible') == 'true' else False
 
         course.save()
 
-        return redirect('/manage-courses/')
-
+        return redirect('/success/?message=Course updated successfully')
     return render(request,
                   'admin_panel/edit_course.html',
                   {'course': course})
@@ -239,7 +258,7 @@ def delete_course(request, id):
 
     course.delete()
 
-    return redirect('/manage-courses/')
+    return redirect('/success/?message=Course deleted successfully')
 
 
 # APPLY COURSE
@@ -2134,7 +2153,11 @@ def apply_online(request):
 
     applicant = Applicant.objects.get(user=request.user)
 
-    courses = Course.objects.all().order_by('-start_date')
+    courses = Course.objects.filter(
+        is_visible=True,
+        seat_status='Vacant'
+    ).order_by('-start_date')
+
 
     if request.method == 'POST':
 
@@ -2208,7 +2231,7 @@ def apply_online(request):
             status='Submitted'
         )
 
-        return redirect('/my-applications/')
+        return redirect('/success/?message=Application submitted successfully')
 
     return render(
         request,
@@ -2235,3 +2258,78 @@ def application_status(request):
 def certificates(request):
 
     return render(request, 'applicant/certificates.html')
+
+def success_page(request):
+
+    message = request.GET.get('message', 'Operation completed successfully.')
+
+    return render(
+        request,
+        'public/success.html',
+        {
+            'message': message
+        }
+    )
+
+@login_required
+def update_course_status(request, id):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    course = Course.objects.get(id=id)
+
+    if request.method == 'POST':
+
+        course.seat_status = request.POST.get('seat_status')
+
+        course.is_visible = True if request.POST.get('is_visible') == 'true' else False
+
+        course.save()
+
+        return redirect('/success/?message=Course status updated successfully')
+    
+@login_required
+def mark_course_full(request, id):
+
+    course = Course.objects.get(id=id)
+
+    course.seat_status = 'Full'
+
+    course.save()
+
+    return redirect('/manage-courses/')
+
+@login_required
+def mark_course_vacant(request, id):
+
+    course = Course.objects.get(id=id)
+
+    course.seat_status = 'Vacant'
+
+    course.save()
+
+    return redirect('/manage-courses/')
+
+@login_required
+def hide_course(request, id):
+
+    course = Course.objects.get(id=id)
+
+    course.is_visible = False
+
+    course.save()
+
+    return redirect('/manage-courses/')
+
+@login_required
+def show_course(request, id):
+
+    course = Course.objects.get(id=id)
+
+    course.is_visible = True
+
+    course.save()
+
+    return redirect('/manage-courses/')
+

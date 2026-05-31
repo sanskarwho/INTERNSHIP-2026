@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Success
+{% endblock %}
+
+{% block content %}
+
+<div class="info-box">
+
+    <div class="info-box-header">
+        <h1>Success</h1>
+    </div>
+
+    <div class="info-box-content" style="text-align: center;">
+
+        <h2>
+            {{ message }}
+        </h2>
+
+        <p>
+            Your action has been completed successfully.
+        </p>
+
+        <br>
+
+        <a href="/admin-dashboard/" class="apply-btn">
+            Return to Dashboard
+        </a>
+
+        <a href="/" class="apply-btn">
+            Return to MMTTC Home Page
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}
