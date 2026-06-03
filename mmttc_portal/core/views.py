@@ -9,12 +9,40 @@ from django.contrib.auth.decorators import login_required
 from .models import Course
 from .models import Applicant, Application
 from .models import ContactMessage
+from .models import EarlierAttendedCourse
+from .models import CourseSchedule
 
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from django.core.files import File
+from django.conf import settings
+from datetime import timedelta
+import os
+
+from datetime import datetime
+
+from docx import Document
+from docx.shared import Inches
+from django.utils import timezone
+from django.core.files import File
+import subprocess
 
 def home(request):
 
-    return render(request,
-                  'public/index.html')
+    schedule = CourseSchedule.objects.first()
+
+    return render(
+        request,
+        'public/index.html',
+        {
+            'schedule': schedule
+        }
+    )
 
 
 # LOGIN
@@ -2156,31 +2184,22 @@ def apply_online(request):
     courses = Course.objects.filter(
         is_visible=True,
         seat_status='Vacant'
-    ).order_by('-start_date')
-
+    ).order_by('course_code', 'start_date')
 
     if request.method == 'POST':
 
-        course_id = request.POST.get('course')
+        course = Course.objects.get(id=request.POST.get('course'))
 
-        course = Course.objects.get(id=course_id)
+        if Application.objects.filter(applicant=applicant, course=course).exists():
 
-        already_applied = Application.objects.filter(
-            applicant=applicant,
-            course=course
-        ).exists()
+            return render(request,
+                          'applicant/apply_online.html',
+                          {
+                              'courses': courses,
+                              'error': 'You have already applied for this course.'
+                          })
 
-        if already_applied:
-            return render(
-                request,
-                'applicant/apply_online.html',
-                {
-                    'courses': courses,
-                    'error': 'You have already applied for this course.'
-                }
-            )
-
-        Application.objects.create(
+        application = Application.objects.create(
 
             applicant=applicant,
             course=course,
@@ -2188,14 +2207,14 @@ def apply_online(request):
             title=request.POST.get('title'),
             full_name=request.POST.get('full_name'),
             category=request.POST.get('category'),
-            is_pwd=True if request.POST.get('is_pwd') == 'yes' else False,
+            is_pwd=True if request.POST.get('is_pwd') == 'YES' else False,
             aadhaar_number=request.POST.get('aadhaar_number'),
             photograph=request.FILES.get('photograph'),
             date_of_birth=request.POST.get('date_of_birth'),
-
+            application_number=generate_application_number(),
             applicant_type=request.POST.get('applicant_type'),
             present_designation=request.POST.get('present_designation'),
-            appointment_date=request.POST.get('appointment_date'),
+            appointment_date=request.POST.get('appointment_date') or None,
             scale_of_pay=request.POST.get('scale_of_pay'),
             nature_of_appointment=request.POST.get('nature_of_appointment'),
 
@@ -2215,43 +2234,109 @@ def apply_online(request):
             qualification_status=request.POST.get('qualification_status'),
             subject_specialization=request.POST.get('subject_specialization'),
 
-            earlier_course_attended=True if request.POST.get('earlier_course_attended') == 'yes' else False,
-            earlier_course_name=request.POST.get('earlier_course_name'),
-            earlier_course_place=request.POST.get('earlier_course_place'),
-            earlier_course_duration=request.POST.get('earlier_course_duration'),
-
-            accommodation_required=True if request.POST.get('accommodation_required') == 'yes' else False,
-
-            appointment_letter=request.FILES.get('appointment_letter'),
-            relieving_order=request.FILES.get('relieving_order'),
-            id_proof=request.FILES.get('id_proof'),
-            signature=request.FILES.get('signature'),
-            other_document=request.FILES.get('other_document'),
+            accommodation_required=True if request.POST.get('accommodation_required') == 'YES' else False,
 
             status='Submitted'
         )
 
-        return redirect('/success/?message=Application submitted successfully')
+        for i in range(1, 5):
 
-    return render(
-        request,
-        'applicant/apply_online.html',
-        {
-            'courses': courses
-        }
-    )
+            course_name = request.POST.get(f'earlier_course_name_{i}')
+            month_year = request.POST.get(f'completion_month_year_{i}')
+            center_name = request.POST.get(f'center_name_{i}')
+
+            if course_name or month_year or center_name:
+
+                EarlierAttendedCourse.objects.create(
+                    application=application,
+                    course_name=course_name,
+                    completion_month_year=month_year,
+                    center_name=center_name
+                )
+            generate_application_files(application)
+
+        return redirect(
+            f'/success/?message=Application submitted successfully&application_id={application.id}')
+
+    return render(request,
+                  'applicant/apply_online.html',
+                  {'courses': courses})
 
 
 @login_required
 def reupload_form(request):
 
-    return render(request, 'applicant/reupload_form.html')
+    if request.user.is_staff:
+        return redirect('/admin-dashboard/')
+
+    applicant = Applicant.objects.get(user=request.user)
+
+    applications = Application.objects.filter(
+        applicant=applicant
+    ).order_by('-application_date')
+
+    if request.method == 'POST':
+
+        application_id = request.POST.get('application_id')
+
+        application = Application.objects.get(
+            id=application_id,
+            applicant=applicant
+        )
+
+        if application.signed_form:
+
+            return redirect(
+                '/success/?message=Signed form has already been uploaded for this application.'
+            )
+
+        application.signed_form = request.FILES.get('signed_form')
+
+        application.status = 'Signed Form Uploaded'
+
+        application.save()
+
+        return redirect(
+            '/success/?message=Signed form uploaded successfully.'
+        )
+
+    return render(
+        request,
+        'applicant/reupload_form.html',
+        {
+            'applications': applications
+        }
+    )
 
 
 @login_required
 def application_status(request):
 
-    return render(request, 'applicant/application_status.html')
+    if request.user.is_staff:
+        return redirect('/admin-dashboard/')
+
+    applicant = Applicant.objects.get(user=request.user)
+
+    applications = Application.objects.filter(
+        applicant=applicant
+    ).order_by('-application_date')
+
+    search = request.GET.get('search')
+
+    if search:
+
+        applications = applications.filter(
+            application_number=search
+        )
+
+    return render(
+        request,
+        'applicant/application_status.html',
+        {
+            'applications': applications,
+            'search': search,
+        }
+    )
 
 
 @login_required
@@ -2261,13 +2346,25 @@ def certificates(request):
 
 def success_page(request):
 
-    message = request.GET.get('message', 'Operation completed successfully.')
+    message = request.GET.get(
+        'message',
+        'Operation completed successfully.'
+    )
+
+    application_id = request.GET.get('application_id')
+
+    application = None
+
+    if application_id:
+
+        application = Application.objects.get(id=application_id)
 
     return render(
         request,
         'public/success.html',
         {
-            'message': message
+            'message': message,
+            'application': application
         }
     )
 
@@ -2333,3 +2430,534 @@ def show_course(request, id):
 
     return redirect('/manage-courses/')
 
+def working_days(start_date, end_date):
+
+    count = 0
+
+    current = start_date
+
+    while current <= end_date:
+
+        if current.weekday() != 6:
+            count += 1
+
+        current += timedelta(days=1)
+
+    return count
+
+@login_required
+def generate_schedule_pdf(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    order = {
+        'OC': 1,
+        'RC-I': 2,
+        'RC-II': 3,
+        'SC': 4,
+        'NEP': 5,
+    }
+
+    course_type_names = {
+        'OC': 'ORIENTATION COURSES',
+        'RC-I': 'REFRESHER COURSES',
+        'RC-II': 'INTER/MULTI DISCIPLINARY REFRESHER COURSES',
+        'SC': 'SHORT TERM COURSES',
+        'NEP': 'NEP COURSES',
+    }
+
+    courses = Course.objects.filter(
+        is_visible=True
+    )
+
+    courses = sorted(
+        courses,
+        key=lambda course: (
+            order.get(course.course_code, 99),
+            course.start_date
+        )
+    )
+
+    schedule_dir = os.path.join(settings.MEDIA_ROOT, 'course_schedules')
+    os.makedirs(schedule_dir, exist_ok=True)
+
+    file_path = os.path.join(schedule_dir, 'tentative_schedule.pdf')
+
+    doc = SimpleDocTemplate(
+        file_path,
+        pagesize=A4,
+        rightMargin=20,
+        leftMargin=20,
+        topMargin=25,
+        bottomMargin=25
+    )
+
+    styles = getSampleStyleSheet()
+
+    title_style = styles['Title']
+    title_style.alignment = 1
+
+    normal_style = styles['BodyText']
+    normal_style.fontSize = 8
+    normal_style.leading = 10
+
+    elements = []
+
+    elements.append(Paragraph(
+        "<b>UGC - HUMAN RESOURCE DEVELOPMENT CENTRE</b>",
+        title_style
+    ))
+
+    elements.append(Paragraph(
+        "<b>BANARAS HINDU UNIVERSITY, VARANASI - 221005</b>",
+        title_style
+    ))
+
+    elements.append(Spacer(1, 18))
+
+    elements.append(Paragraph(
+        "<b>TENTATIVE SCHEDULE</b>",
+        title_style
+    ))
+
+    elements.append(Spacer(1, 18))
+
+    data = [
+        [
+            'S.No.',
+            'Course Name',
+            'Dates',
+            'Working Days',
+            'Mode'
+        ]
+    ]
+
+    serial = 1
+    current_type = None
+    heading_rows = []
+
+    for course in courses:
+
+        if current_type != course.course_code:
+
+            current_type = course.course_code
+
+            heading_rows.append(len(data))
+
+            data.append([
+                course_type_names.get(course.course_code, course.course_code),
+                '',
+                '',
+                '',
+                ''
+            ])
+
+        date_text = (
+            f"{course.start_date.strftime('%d-%m-%Y')} "
+            f"to {course.end_date.strftime('%d-%m-%Y')}"
+        )
+
+        data.append([
+            str(serial),
+            Paragraph(
+                f"<b>{course.course_code} :</b> {course.title}",
+                normal_style
+            ),
+            date_text,
+            str(working_days(course.start_date, course.end_date)),
+            Paragraph(
+                f"<b>{course.mode}</b>",
+                normal_style
+            )
+        ])
+
+        serial += 1
+
+    table = Table(
+        data,
+        colWidths=[35, 310, 100, 60, 50],
+        repeatRows=1
+    )
+
+    style_commands = [
+
+        ('BACKGROUND', (0, 0), (-1, 0), colors.lightgrey),
+        ('GRID', (0, 0), (-1, -1), 0.8, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+
+    ]
+
+    for row_index in heading_rows:
+
+        style_commands.extend([
+
+            ('SPAN', (0, row_index), (-1, row_index)),
+            ('BACKGROUND', (0, row_index), (-1, row_index), colors.whitesmoke),
+            ('FONTNAME', (0, row_index), (-1, row_index), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, row_index), (-1, row_index), 9),
+            ('ALIGN', (0, row_index), (-1, row_index), 'CENTER'),
+            ('TEXTCOLOR', (0, row_index), (-1, row_index), colors.black),
+
+        ])
+
+    table.setStyle(TableStyle(style_commands))
+
+    elements.append(table)
+
+    doc.build(elements)
+
+    schedule, created = CourseSchedule.objects.get_or_create(id=1)
+
+    with open(file_path, 'rb') as pdf:
+        schedule.pdf_file.save(
+            'tentative_schedule.pdf',
+            File(pdf),
+            save=True
+        )
+
+    return redirect('/success/?message=Tentative schedule PDF generated successfully')
+
+@login_required
+def application_instructions(request):
+
+    if request.user.is_staff:
+        return redirect('/admin-dashboard/')
+
+    return render(
+        request,
+        'applicant/application_instructions.html'
+    )
+
+def generate_application_number():
+
+    today = datetime.now().strftime('%y%m%d')
+
+    count = Application.objects.count() + 1
+
+    return f"BH{today}{count:04d}"
+
+
+def replace_text_in_paragraphs(paragraphs, replacements):
+
+    for paragraph in paragraphs:
+
+        full_text = paragraph.text
+
+        for key, value in replacements.items():
+
+            if key in full_text:
+
+                full_text = full_text.replace(key, str(value))
+
+                for run in paragraph.runs:
+                    run.text = ""
+
+                if paragraph.runs:
+                    paragraph.runs[0].text = full_text
+                    paragraph.runs[0].bold = True
+                else:
+                    run = paragraph.add_run(full_text)
+                    run.bold = True
+
+
+def replace_text_in_tables(tables, replacements):
+
+    for table in tables:
+
+        for row in table.rows:
+
+            for cell in row.cells:
+
+                replace_text_in_paragraphs(
+                    cell.paragraphs,
+                    replacements
+                )
+
+                replace_text_in_tables(
+                    cell.tables,
+                    replacements
+                )
+
+
+def replace_text_in_doc(doc, replacements):
+
+    replace_text_in_paragraphs(
+        doc.paragraphs,
+        replacements
+    )
+
+    replace_text_in_tables(
+        doc.tables,
+        replacements
+    )
+
+    for section in doc.sections:
+
+        replace_text_in_paragraphs(
+            section.header.paragraphs,
+            replacements
+        )
+
+        replace_text_in_tables(
+            section.header.tables,
+            replacements
+        )
+
+        replace_text_in_paragraphs(
+            section.footer.paragraphs,
+            replacements
+        )
+
+        replace_text_in_tables(
+            section.footer.tables,
+            replacements
+        )
+
+        for section in doc.sections:
+
+            print("HEADER TEXT:")
+
+            for paragraph in section.header.paragraphs:
+                print(paragraph.text)
+
+            for table in section.header.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        print(cell.text)
+
+def generate_application_docx(application):
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        'core',
+        'templates_docs',
+        'Print_Application.docx'
+    )
+
+    output_dir = os.path.join(
+        settings.MEDIA_ROOT,
+        'application_uploads',
+        'generated_docs'
+    )
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_filename = f"{application.application_number}.docx"
+
+    output_path = os.path.join(
+        output_dir,
+        output_filename
+    )
+
+    course_name = (
+        f"{application.course.course_code}: {application.course.title} "
+        f"({application.course.mode} Mode, "
+        f"{application.course.start_date.strftime('%B %d')} - "
+        f"{application.course.end_date.strftime('%B %d, %Y')})"
+    )
+
+    earlier_courses = list(application.earlier_courses.all())
+
+    replacements = {
+        '{{PRINT_DATETIME}}': timezone.now().strftime('%d-%m-%Y %I:%M %p'),
+        '{{APPLICATION_NUMBER}}': application.application_number or '',
+        '{{COURSE_NAME}}': course_name,
+        '{{FULL_NAME}}': f"{application.title} {application.full_name}",
+        '{{AADHAAR}}': application.aadhaar_number or '',
+        '{{DOB}}': application.date_of_birth.strftime('%d-%m-%Y') if application.date_of_birth else '',
+        '{{PRESENT_DESIG}}': application.present_designation or '',
+        '{{APP_DATE}}': application.appointment_date.strftime('%d-%m-%Y') if application.appointment_date else '',
+        '{{PAY_SCALE}}': application.scale_of_pay or '',
+        '{{CATEGORY}}': application.category or '',
+        '{{PWD}}': 'YES' if application.is_pwd else 'NO',
+        '{{INST_ADDR}}': application.official_address or '',
+        '{{STATE1}}': application.official_state or '',
+        '{{PIN1}}': application.official_pin or '',
+        '{{MAIL_ADDR}}': application.mailing_address or '',
+        '{{STATE2}}': application.mailing_state or '',
+        '{{PIN2}}': application.mailing_pin or '',
+        '{{MOBILE}}': application.mobile_number or '',
+        '{{ALT}}': application.alternate_number or '',
+        '{{EMAIL}}': application.email or '',
+        '{{H_QUAL}}': application.highest_qualification or '',
+        '{{QUAL_S}}': application.qualification_status or '',
+        '{{SUBJECT}}': application.subject_specialization or '',
+        '{{ACC}}': 'YES' if application.accommodation_required else 'NO',
+    }
+
+    for i in range(1, 5):
+
+        if i <= len(earlier_courses):
+
+            earlier = earlier_courses[i - 1]
+
+            replacements[f'{{{{COURSE{i}}}}}'] = earlier.course_name or ''
+            replacements[f'{{{{DATE{i}}}}}'] = earlier.completion_month_year or ''
+            replacements[f'{{{{CENTER{i}}}}}'] = earlier.center_name or ''
+
+        else:
+
+            replacements[f'{{{{COURSE{i}}}}}'] = ''
+            replacements[f'{{{{DATE{i}}}}}'] = ''
+            replacements[f'{{{{CENTER{i}}}}}'] = ''
+
+    doc = Document(template_path)
+
+    replace_text_in_doc(doc, replacements)
+
+    doc.save(output_path)
+
+    return output_path
+
+def generate_application_files(application):
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        'core',
+        'templates_docs',
+        'Print_Application.docx'
+    )
+
+    output_dir = os.path.join(
+        settings.MEDIA_ROOT,
+        'application_uploads',
+        'generated_docs'
+    )
+
+    pdf_dir = os.path.join(
+        settings.MEDIA_ROOT,
+        'application_uploads',
+        'generated_pdfs'
+    )
+
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(pdf_dir, exist_ok=True)
+
+    docx_name = f"{application.application_number}.docx"
+    pdf_name = f"{application.application_number}.pdf"
+
+    docx_path = os.path.join(output_dir, docx_name)
+    pdf_path = os.path.join(pdf_dir, pdf_name)
+
+    course_name = (
+        f"{application.course.course_code}: {application.course.title} "
+        f"({application.course.mode} Mode, "
+        f"{application.course.start_date.strftime('%B %d')} - "
+        f"{application.course.end_date.strftime('%B %d, %Y')})"
+    )
+
+    earlier_courses = list(application.earlier_courses.all())
+
+    replacements = {
+        '{{PRINT_DATETIME}}': timezone.now().strftime('%d-%m-%Y %I:%M %p'),
+        '{{APPLICATION_NUMBER}}': application.application_number or '',
+        '{{COURSE_NAME}}': course_name,
+        '{{FULL_NAME}}': f"{application.title} {application.full_name}",
+        '{{AADHAAR}}': application.aadhaar_number or '',
+        '{{DOB}}': str(application.date_of_birth) if application.date_of_birth else '',
+        '{{PRESENT_DESIG}}': application.present_designation or '',
+        '{{APP_DATE}}': str(application.appointment_date) if application.appointment_date else '',
+        '{{PAY_SCALE}}': application.scale_of_pay or '',
+        '{{CATEGORY}}': application.category or '',
+        '{{PWD}}': 'YES' if application.is_pwd else 'NO',
+        '{{INST_ADDR}}': application.official_address or '',
+        '{{STATE1}}': application.official_state or '',
+        '{{PIN1}}': application.official_pin or '',
+        '{{MAIL_ADDR}}': application.mailing_address or '',
+        '{{STATE2}}': application.mailing_state or '',
+        '{{PIN2}}': application.mailing_pin or '',
+        '{{MOBILE}}': application.mobile_number or '',
+        '{{ALT}}': application.alternate_number or '',
+        '{{EMAIL}}': application.email or '',
+        '{{H_QUAL}}': application.highest_qualification or '',
+        '{{QUAL_S}}': application.qualification_status or '',
+        '{{SUBJECT}}': application.subject_specialization or '',
+        '{{ACC}}': 'YES' if application.accommodation_required else 'NO',
+    }
+
+    for i in range(1, 5):
+        if i <= len(earlier_courses):
+            earlier = earlier_courses[i - 1]
+            replacements[f'{{{{COURSE{i}}}}}'] = earlier.course_name or ''
+            replacements[f'{{{{DATE{i}}}}}'] = earlier.completion_month_year or ''
+            replacements[f'{{{{CENTER{i}}}}}'] = earlier.center_name or ''
+        else:
+            replacements[f'{{{{COURSE{i}}}}}'] = ''
+            replacements[f'{{{{DATE{i}}}}}'] = ''
+            replacements[f'{{{{CENTER{i}}}}}'] = ''
+
+    doc = Document(template_path)
+
+    replace_text_in_doc(doc, replacements)
+    replace_photo_placeholder(doc, application)
+
+    doc.save(docx_path)
+
+    application.generated_application_docx.save(
+        docx_name,
+        File(open(docx_path, 'rb')),
+        save=False
+    )
+
+    subprocess.run(
+        [
+            r'C:\Program Files\LibreOffice\program\soffice.exe',
+            '--headless',
+            '--convert-to',
+            'pdf',
+            '--outdir',
+            pdf_dir,
+            docx_path
+        ],
+        check=True
+    )
+
+    application.generated_application_pdf.save(
+        pdf_name,
+        File(open(pdf_path, 'rb')),
+        save=True
+    )
+
+def replace_photo_placeholder(doc, application):
+
+    if not application.photograph:
+        return
+
+    photo_path = application.photograph.path
+
+    for paragraph in doc.paragraphs:
+
+        if '{{PHOTO}}' in paragraph.text:
+
+            paragraph.clear()
+
+            run = paragraph.add_run()
+
+            run.add_picture(photo_path, width=Inches(1.2), height=Inches(1.4))
+
+            return
+
+    for table in doc.tables:
+
+        for row in table.rows:
+
+            for cell in row.cells:
+
+                for paragraph in cell.paragraphs:
+
+                    if '{{PHOTO}}' in paragraph.text:
+
+                        paragraph.clear()
+
+                        run = paragraph.add_run()
+
+                        run.add_picture(photo_path, width=Inches(1.2), height=Inches(1.4))
+
+                        return
+                    

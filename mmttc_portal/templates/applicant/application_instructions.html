@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+Application Instructions
+{% endblock %}
+
+{% block side_banner %}
+{% endblock %}
+
+{% block content %}
+
+<div class = "application-paper">
+
+    <div class="application-header">
+
+        <h2>
+            UGC-Malaviya Mission Teacher Training Centre / यू.जी.सी.-मालवीय मिशन टीचर ट्रेनिंग सेंटर
+        </h2>
+
+        <img src="{% static 'images/bhulogo.png' %}"
+            alt="BHU Logo">
+
+        <h3>
+            VARANASI-221005 (UP) / वाराणसी – 221005 (उ.प्र.)
+        </h3>
+
+    </div>
+
+    <h1 class="application-main-title">
+        INSTRUCTIONS TO FILL APPLICATION FORM ONLINE
+    </h1>
+
+    <div class="instruction-hover-box">
+
+        *** Courses will be conducted in online/offline mode. ***
+
+    </div>
+
+    <div class="application-instructions">
+
+        <p>
+            <strong>Step 1:</strong>
+            To initiate filling application online, click the
+            <strong>"Apply Online"</strong> button below.
+            Fill the details and submit the form.
+            After submission, kindly take a print out of the application form by clicking
+            <strong>"Print Application Form"</strong> button.
+        </p>
+
+        <p>
+            Please note that a unique Application Number is generated for your form.
+            This application number along with your Date of Birth will be required
+            for restarting the session again, uploading the scanned copy of duly signed form,
+            or printing your application form. Please note down and keep the application number safe.
+        </p>
+
+        <p>
+            <strong>Step 2:</strong>
+            The form printed in Step 1 should be duly signed by you and forwarded by the Head of your Institution.
+        </p>
+
+        <p>
+            <strong>Step 3:</strong>
+            Visit this page again through the main website and upload the scanned copy of the duly signed application form by clicking
+            <strong>"Upload Signed PDF File"</strong> button.
+        </p>
+
+        <p>
+            <strong>Step 4:</strong>
+            After a few weeks, an automated email may be sent to you if your form is
+            <strong>"Provisionally Accepted"</strong>.
+            You may also visit this portal again to check whether your application is accepted or not by clicking
+            <strong>"Check Your Form Status"</strong>.
+        </p>
+
+        <h2>
+            Note
+        </h2>
+
+        <ul>
+
+            <li>
+                Acceptance of your online application is provisional and subject to verification of facts.
+            </li>
+
+            <li>
+                According to new guidelines of UGC-MMTTC, participants attending programmes in residential mode will bear the expenses of TA and DA.
+            </li>
+
+            <li>
+                Participants may also have to pay for accommodation and dinner, if availed.
+            </li>
+
+            <li>
+                MMTTC, BHU will provide breakfast and working lunch only.
+            </li>
+
+            <li>
+                No registration fee has to be paid.
+            </li>
+
+        </ul>
+
+        <form action="/application-form/"
+              method="GET">
+
+            <div class="instruction-confirm-form">
+
+                <div class="instruction-checkbox-row">
+
+                    <input type="checkbox"
+                        id="instruction_check">
+
+                    <span>
+                        I have read and understood all instructions.
+                    </span>
+
+                </div>
+
+                <button type="submit"
+                        id="continue_button"
+                        disabled>
+
+                    Continue to Application Form
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

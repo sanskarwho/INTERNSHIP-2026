@@ -6,42 +6,93 @@ My Applications
 
 {% block content %}
 
-<h1>My Applications</h1>
+<h1>
+    My Applications
+</h1>
 
 <table class="info-table">
 
     <tr>
-        <th>Course</th>
-        <th>Submitted Date</th>
-        <th>Download PDF</th>
+
+        <th>
+            Application No.
+        </th>
+
+        <th>
+            Course
+        </th>
+
+        <th>
+            Submitted Date
+        </th>
+
+        <th>
+            Download PDF
+        </th>
+
     </tr>
 
     {% for application in applications %}
 
     <tr>
+
         <td>
-            {{ application.course.course_code }} : {{ application.course.title }}
+
+            {{ application.application_number }}
+
+        </td>
+
+        <td>
+
+            {{ application.course.course_code }}
+            :
+            {{ application.course.title }}
+
             <br>
-            ({{ application.course.start_date }} - {{ application.course.end_date }}) ({{ application.course.mode }})
+
+            ({{ application.course.start_date }}
+            -
+            {{ application.course.end_date }})
+            ({{ application.course.mode }})
+
         </td>
 
         <td>
+
             {{ application.application_date }}
+
         </td>
 
         <td>
-            <a href="#">
-                Download PDF
-            </a>
+
+            {% if application.generated_application_pdf %}
+
+                <a href="{{ application.generated_application_pdf.url }}"
+                target="_blank"
+                class="table-action neutral">
+                    Download PDF
+                </a>
+
+            {% else %}
+
+                Not Available
+
+            {% endif %}
+
         </td>
+
     </tr>
 
     {% empty %}
 
     <tr>
-        <td colspan="3">
+
+        <td colspan="4">
+
             No applications submitted yet.
+
         </td>
+
     </tr>
 
     {% endfor %}

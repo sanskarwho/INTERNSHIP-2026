@@ -12,6 +12,26 @@ Home
     <img src="{% static 'images/banner.jpg' %}"
          alt="MMTTC Banner">
 
+{% if schedule and schedule.pdf_file %}
+
+<div class="schedule-marquee-box">
+
+    <marquee behavior="scroll"
+             direction="left">
+
+        <a href="{{ schedule.pdf_file.url }}"
+           target="_blank">
+
+            TENTATIVE SCHEDULE FOR COURSES
+            (last updated {{ schedule.updated_at|date:"d.m.Y" }})
+
+        </a>
+
+    </marquee>
+
+</div>
+
+{% endif %}
 
 <div class="info-box">
 

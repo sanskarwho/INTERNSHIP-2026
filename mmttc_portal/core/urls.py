@@ -121,9 +121,17 @@ urlpatterns = [
     views.view_messages,
     name='view_messages'),
 
-     path('apply-online/', views.apply_online, name='apply_online'),
+     path('apply-online/',
+     views.application_instructions,
+     name='apply_online'),
 
-     path('reupload-form/', views.reupload_form, name='reupload_form'),
+     path('application-form/',
+     views.apply_online,
+     name='application_form'),
+
+     path('reupload-form/',
+     views.reupload_form,
+     name='reupload_form'),
 
      path('application-status/', views.application_status, name='application_status'),
 
@@ -158,4 +166,8 @@ urlpatterns = [
      views.show_course,
      name='show_course'
      ),
+
+     path('generate-schedule-pdf/',
+     views.generate_schedule_pdf,
+     name='generate_schedule_pdf'),
 ]

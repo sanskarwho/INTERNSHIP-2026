@@ -1,218 +1,531 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
 Apply Online
 {% endblock %}
 
+{% block side_banner %}
+{% endblock %}
+
 {% block content %}
 
-<div class="info-box">
+<div class ="application-form-page">
 
-    <div class="info-box-header">
-        <h1>Apply Online</h1>
+    <div class="application-header">
+
+        <h2>
+            UGC-Malaviya Mission Teacher Training Centre / यू.जी.सी.-मालवीय मिशन टीचर ट्रेनिंग सेंटर
+        </h2>
+
+        <img src="{% static 'images/bhulogo.png' %}"
+            alt="BHU Logo">
+
+        <h3>
+            VARANASI-221005 (UP) / वाराणसी – 221005 (उ.प्र.)
+        </h3>
+
     </div>
 
-    <div class="info-box-content">
+    <h1 class="application-main-title">
+        APPLICATION FORM
+    </h1>
 
-        {% if error %}
-        <p style="color: red; font-weight: bold;">
-            {{ error }}
-        </p>
-        {% endif %}
+    {% if error %}
+    <p class="form-error">
+        {{ error }}
+    </p>
+    {% endif %}
 
-        <form method="POST" enctype="multipart/form-data" class="application-form">
+    <form method="POST"
+          enctype="multipart/form-data"
+          class="official-application-form">
 
-            {% csrf_token %}
+        {% csrf_token %}
 
-            <h2>Course Details</h2>
+        <h2>COURSE DETAILS / पाठ्यक्रम विवरण</h2>
 
-            <label>Select Course</label>
-            <select name="course" required>
-                <option value="">-- Select Course --</option>
+        <label>Course Type / कोर्स का प्रकार</label>
+        <select id="course_type">
+            <option value="">-- Select Course Type --</option>
+            <option value="OC">OC</option>
+            <option value="RC-I">RC-I</option>
+            <option value="RC-II">RC-II</option>
+            <option value="SC">SC</option>
+            <option value="NEP">NEP</option>
+        </select>
 
-                {% for course in courses %}
-                    <option value="{{ course.id }}">
-                        {{ course.course_code }} : {{ course.title }} ({{ course.start_date }} - {{ course.end_date }}) ({{ course.mode }})
-                    </option>
-                {% endfor %}
-            </select>
+        <label>Course Name / कोर्स का नाम</label>
+        <select name="course" id="course_select" required>
+            <option value="">-- Select Course --</option>
 
-            <h2>Personal Details</h2>
+            {% for course in courses %}
+            <option value="{{ course.id }}"
+                    data-code="{{ course.course_code }}"
+                    data-mode="{{ course.mode }}">
+                {{ course.course_code }} : {{ course.title }}
+                ({{ course.start_date }} - {{ course.end_date }}) ({{ course.mode }})
+            </option>
+            {% endfor %}
+        </select>
 
-            <label>Title</label>
-            <select name="title">
+        <div id="form-fields">
+
+            <h2>PERSONAL DETAILS / व्यक्तिगत विवरण</h2>
+
+            <label>Title / उपपद</label>
+            <select name="title" required>
                 <option value="">-- Select --</option>
                 <option>Mr.</option>
                 <option>Ms.</option>
-                <option>Mrs.</option>
                 <option>Dr.</option>
                 <option>Prof.</option>
             </select>
 
-            <label>Full Name</label>
-            <input type="text" name="full_name" required>
+            <label>Name / नाम</label>
+            <input type="text"
+                   name="full_name"
+                   maxlength="100"
+                   required>
 
-            <label>Category</label>
-            <select name="category">
+            <label>Category / वर्ग</label>
+            <select name="category" required>
                 <option value="">-- Select --</option>
                 <option>General</option>
-                <option>OBC</option>
                 <option>SC</option>
                 <option>ST</option>
+                <option>OBC</option>
                 <option>EWS</option>
             </select>
 
-            <label>Person with Disability</label>
-            <select name="is_pwd">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-            </select>
-
-            <label>Aadhaar Number</label>
-            <input type="text" name="aadhaar_number">
-
-            <label>Photograph</label>
-            <input type="file" name="photograph" accept="image/*">
-
-            <label>Date of Birth</label>
-            <input type="date" name="date_of_birth">
-
-            <h2>Service Details</h2>
-
-            <label>Applicant Type</label>
-            <select name="applicant_type">
+            <label>Person with Disability(ies) / दिव्यांग व्यक्ति</label>
+            <select name="is_pwd" required>
                 <option value="">-- Select --</option>
-                <option>Faculty</option>
-                <option>Researcher</option>
-                <option>Non-Teaching Staff</option>
+                <option>YES</option>
+                <option>NO</option>
             </select>
 
-            <label>Present Designation</label>
-            <input type="text" name="present_designation">
+            <label>Aadhaar No. / आधार सं०</label>
+            <input type="text"
+                   name="aadhaar_number"
+                   maxlength="12"
+                   minlength="12"
+                   pattern="[0-9]{12}"
+                   required>
 
-            <label>Date of Appointment</label>
-            <input type="date" name="appointment_date">
-
-            <label>Scale of Pay</label>
-            <input type="text" name="scale_of_pay">
-
-            <label>Nature of Appointment</label>
-            <select name="nature_of_appointment">
-                <option value="">-- Select --</option>
-                <option>Permanent</option>
-                <option>Temporary</option>
-                <option>Ad-hoc</option>
-                <option>Contractual</option>
-            </select>
-
-            <h2>Official Address</h2>
-
-            <label>Official Address</label>
-            <textarea name="official_address" rows="4"></textarea>
-
-            <label>State</label>
-            <input type="text" name="official_state">
-
-            <label>PIN Code</label>
-            <input type="text" name="official_pin">
-
-            <h2>Mailing Address</h2>
-
-            <label>Mailing Address</label>
-            <textarea name="mailing_address" rows="4"></textarea>
-
-            <label>State</label>
-            <input type="text" name="mailing_state">
-
-            <label>PIN Code</label>
-            <input type="text" name="mailing_pin">
-
-            <h2>Contact Details</h2>
-
-            <label>Mobile Number</label>
-            <input type="text" name="mobile_number">
-
-            <label>Alternate Number</label>
-            <input type="text" name="alternate_number">
-
-            <label>Email</label>
-            <input type="email" name="email">
-
-            <h2>Academic Details</h2>
-
-            <label>Highest Qualification</label>
-            <input type="text" name="highest_qualification">
-
-            <label>Qualification Status</label>
-            <select name="qualification_status">
-                <option value="">-- Select --</option>
-                <option>Completed</option>
-                <option>Pursuing</option>
-            </select>
-
-            <label>Subject / Specialization</label>
-            <input type="text" name="subject_specialization">
-
-            <h2>Earlier Attended Course</h2>
-
-            <label>Have you attended any earlier course?</label>
-            <select name="earlier_course_attended">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-            </select>
-
-            <label>Earlier Course Name</label>
-            <input type="text" name="earlier_course_name">
-
-            <label>Place</label>
-            <input type="text" name="earlier_course_place">
-
-            <label>Duration</label>
-            <input type="text" name="earlier_course_duration">
-
-            <h2>Accommodation</h2>
-
-            <label>Accommodation Required?</label>
-            <select name="accommodation_required">
-                <option value="no">No</option>
-                <option value="yes">Yes</option>
-            </select>
-
-            <h2>Document Uploads</h2>
-
-            <label>Appointment Letter</label>
-            <input type="file" name="appointment_letter">
-
-            <label>Relieving Order / NOC</label>
-            <input type="file" name="relieving_order">
-
-            <label>ID Proof</label>
-            <input type="file" name="id_proof">
-
-            <label>Signature</label>
-            <input type="file" name="signature" accept="image/*">
-
-            <label>Other Document</label>
-            <input type="file" name="other_document">
-
-            <h2>Declaration</h2>
+            <label>
+                Click on the button below to upload your photograph /
+                अपनी छवी अपलोड करने के लिए नीचे बटन पर क्लिक करें
+            </label>
 
             <p>
-                I hereby declare that the information provided above is true and correct to the best of my knowledge.
+                Max Size - 50KB; File Type - jpg/png/gif; Aspect Ratio - 1:1
+            </p>
+
+            <input type="file"
+                name="photograph"
+                id="photograph"
+                accept=".jpg,.jpeg,.png,.gif"
+                required>
+
+            <br><br>
+
+            <div class="photo-preview-container">
+
+                <img id="photo-preview"
+                    src=""
+                    alt="Photograph Preview">
+
+            </div>
+
+            <br>
+
+            <label>
+
+                <input type="checkbox"
+                    id="photo-uploaded"
+                    disabled>
+
+                Photograph Successfully Uploaded
+
+            </label>
+
+            <label>D.O.B / जन्म तिथि</label>
+            <input type="date"
+                   name="date_of_birth"
+                   required>
+
+            <label>
+                Faculty or Researcher/Non-Teaching? /
+                प्राध्यापक अथवा शोधार्थी/गैर-शैक्षणिक?
+            </label>
+
+            <select name="applicant_type"
+                    id="applicant_type"
+                    required>
+                <option value="">-- Select --</option>
+                <option>Faculty</option>
+                <option>Researcher/Non-Teaching</option>
+            </select>
+
+            <div id="faculty-fields">
+
+                <label>Present Designation / वर्तमान पद</label>
+                <input type="text"
+                       name="present_designation">
+
+                <label>Appointment Date / नियुक्ति तिथि</label>
+                <input type="date"
+                       name="appointment_date">
+
+                <label>Scale of Pay / वेतनमान</label>
+                <input type="text"
+                       name="scale_of_pay">
+
+                <label>Nature of Appointment / नियुक्ति का प्रकार</label>
+                <select name="nature_of_appointment">
+                    <option value="">-- Select --</option>
+                    <option>Permanent</option>
+                    <option>Temporary</option>
+                    <option>Adhoc</option>
+                    <option>Fixed Salary</option>
+                </select>
+
+            </div>
+
+            <h2>CONTACT DETAILS / संपर्क विवरण</h2>
+
+            <h3>Official Address / आधिकारिक पता</h3>
+
+            <label>Institute Address / संस्थान का पता</label>
+            <input type="text"
+                   name="official_address"
+                   id="official_address"
+                   maxlength="100"
+                   required>
+
+            <label>State / राज्य</label>
+            <select name="official_state"
+                    id="official_state"
+                    required>
+                <option value="">-- Select State --</option>
+                <option>Andhra Pradesh</option>
+                <option>Arunachal Pradesh</option>
+                <option>Assam</option>
+                <option>Bihar</option>
+                <option>Chhattisgarh</option>
+                <option>Goa</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Himachal Pradesh</option>
+                <option>Jharkhand</option>
+                <option>Karnataka</option>
+                <option>Kerala</option>
+                <option>Madhya Pradesh</option>
+                <option>Maharashtra</option>
+                <option>Manipur</option>
+                <option>Meghalaya</option>
+                <option>Mizoram</option>
+                <option>Nagaland</option>
+                <option>Odisha</option>
+                <option>Punjab</option>
+                <option>Rajasthan</option>
+                <option>Sikkim</option>
+                <option>Tamil Nadu</option>
+                <option>Telangana</option>
+                <option>Tripura</option>
+                <option>Uttar Pradesh</option>
+                <option>Uttarakhand</option>
+                <option>West Bengal</option>
+                <option>Delhi</option>
+                <option>Jammu and Kashmir</option>
+                <option>Ladakh</option>
+                <option>Puducherry</option>
+            </select>
+
+            <label>Pin Code / पिन कोड</label>
+            <input type="text"
+                   name="official_pin"
+                   id="official_pin"
+                   maxlength="6"
+                   minlength="6"
+                   pattern="[0-9]{6}"
+                   required>
+
+            <h3>Mailing Address / पत्राचार का पता</h3>
+
+            <label>
+                <input type="checkbox"
+                       id="same_address">
+                Same as Institution/University Address / आधिकारिक पते के समान
+            </label>
+
+            <label>Mailing Address</label>
+            <input type="text"
+                   name="mailing_address"
+                   id="mailing_address"
+                   maxlength="100"
+                   required>
+
+            <label>State</label>
+            <select name="mailing_state"
+                    id="mailing_state"
+                    required>
+                <option value="">-- Select State --</option>
+                <option>Andhra Pradesh</option>
+                <option>Arunachal Pradesh</option>
+                <option>Assam</option>
+                <option>Bihar</option>
+                <option>Chhattisgarh</option>
+                <option>Goa</option>
+                <option>Gujarat</option>
+                <option>Haryana</option>
+                <option>Himachal Pradesh</option>
+                <option>Jharkhand</option>
+                <option>Karnataka</option>
+                <option>Kerala</option>
+                <option>Madhya Pradesh</option>
+                <option>Maharashtra</option>
+                <option>Manipur</option>
+                <option>Meghalaya</option>
+                <option>Mizoram</option>
+                <option>Nagaland</option>
+                <option>Odisha</option>
+                <option>Punjab</option>
+                <option>Rajasthan</option>
+                <option>Sikkim</option>
+                <option>Tamil Nadu</option>
+                <option>Telangana</option>
+                <option>Tripura</option>
+                <option>Uttar Pradesh</option>
+                <option>Uttarakhand</option>
+                <option>West Bengal</option>
+                <option>Delhi</option>
+                <option>Jammu and Kashmir</option>
+                <option>Ladakh</option>
+                <option>Puducherry</option>
+            </select>
+
+            <label>Pin Code</label>
+            <input type="text"
+                   name="mailing_pin"
+                   id="mailing_pin"
+                   maxlength="6"
+                   minlength="6"
+                   pattern="[0-9]{6}"
+                   required>
+
+            <h3>Other Contact Details / अन्य सम्पर्क सूत्र</h3>
+
+            <label>Mobile Number / मोबाइल नंबर</label>
+            <input type="text"
+                   name="mobile_number"
+                   maxlength="10"
+                   minlength="10"
+                   pattern="[0-9]{10}"
+                   required>
+
+            <label>Alternate Mobile Number / वैकल्पिक मोबाइल नंबर</label>
+            <input type="text"
+                   name="alternate_number"
+                   maxlength="10"
+                   minlength="10"
+                   pattern="[0-9]{10}">
+
+            <label>Email / ईमेल</label>
+            <input type="email"
+                   name="email"
+                   maxlength="30"
+                   required>
+
+            <h2>ACADEMIC CAREER DETAILS / शैक्षणिक व्यवसाय विवरण</h2>
+
+            <label>Highest Educational Qualification / उच्चतम शैक्षणिक योग्यता</label>
+            <select name="highest_qualification"
+                    id="highest_qualification"
+                    required>
+                <option value="">-- Select --</option>
+                <option>Below 10+2</option>
+                <option>10+2 (or equivalent)</option>
+                <option>Graduate</option>
+                <option>Post-Graduate</option>
+                <option>M.Phill</option>
+                <option>Ph.D.</option>
+            </select>
+
+            <div id="qualification-extra">
+
+                <label>Qualification Status / योग्यता की स्थिति</label>
+                <select name="qualification_status">
+                    <option value="">-- Select --</option>
+                    <option>Pursuing</option>
+                    <option>Submitted</option>
+                    <option>Awarded/Passed</option>
+                </select>
+
+                <label>Subject/Specialization / विषय / विशेषज्ञता</label>
+                <input type="text"
+                       name="subject_specialization"
+                       maxlength="50">
+
+            </div>
+
+            <h2>
+                DETAILS OF EARLIER ATTENDED COURSES /
+                पहले किये हुए पाठ्यक्रमों का विवरण
+            </h2>
+
+            <table class="earlier-course-table">
+
+                <tr>
+                    <th>Course Name / कोर्स का नाम</th>
+                    <th>Course Completion Month & Year</th>
+                    <th>Center Name / सेंटर का नाम</th>
+                </tr>
+
+                {% for i in "1234" %}
+
+                <tr>
+                    <td>
+                        <input type="text"
+                               name="earlier_course_name_{{ i }}">
+                    </td>
+
+                    <td>
+                        <input type="month"
+                               name="completion_month_year_{{ i }}">
+                    </td>
+
+                    <td>
+                        <input type="text"
+                               name="center_name_{{ i }}">
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </table>
+
+            <label>
+                Accommodation required ? (For offline mode only) /
+                निवास सुविधा चाहिए ? (केवल ऑफ़लाइन मोड के लिए)
+            </label>
+
+            <select name="accommodation_required"
+                    id="accommodation_required">
+                <option value="">-- Select --</option>
+                <option>YES</option>
+                <option>NO</option>
+            </select>
+
+            <p class="declaration-text">
+                I hereby declare that the entries made in this registration form are true
+                to the best of my knowledge and belief.
+                <br>
+                मैं इस बात की घोषणा करता हूं / करती हूँ कि इस पंजीकरण फॉर्म में की गई
+                प्रविष्टियां मेरे ज्ञान और विश्वास के अनुसार से सत्य हैं।
             </p>
 
             <label>
                 <input type="checkbox" required>
-                I agree to the declaration.
+                I Agree / मैं सहमत हूँ
             </label>
 
             <button type="submit">
                 Submit Application
             </button>
 
-        </form>
+        </div>
 
-    </div>
+    </form>
+
+</div>
+
+<script>
+
+    const courseType = document.getElementById('course_type');
+    const courseSelect = document.getElementById('course_select');
+    const applicantType = document.getElementById('applicant_type');
+    const facultyFields = document.getElementById('faculty-fields');
+    const sameAddress = document.getElementById('same_address');
+    const highestQualification = document.getElementById('highest_qualification');
+    const qualificationExtra = document.getElementById('qualification-extra');
+    const accommodationRequired = document.getElementById('accommodation_required');
+
+    facultyFields.style.display = 'none';
+    qualificationExtra.style.display = 'none';
+
+    courseType.addEventListener('change', function () {
+
+        const selectedCode = this.value;
+
+        for (let option of courseSelect.options) {
+
+            if (option.value === '') {
+                option.hidden = false;
+            }
+            else {
+                option.hidden = option.dataset.code !== selectedCode;
+            }
+        }
+
+        courseSelect.value = '';
+
+    });
+
+    applicantType.addEventListener('change', function () {
+
+        if (this.value === 'Faculty') {
+            facultyFields.style.display = 'block';
+        }
+        else {
+            facultyFields.style.display = 'none';
+        }
+
+    });
+
+    sameAddress.addEventListener('change', function () {
+
+        if (this.checked) {
+
+            document.getElementById('mailing_address').value =
+                document.getElementById('official_address').value;
+
+            document.getElementById('mailing_state').value =
+                document.getElementById('official_state').value;
+
+            document.getElementById('mailing_pin').value =
+                document.getElementById('official_pin').value;
+        }
+
+    });
+
+    highestQualification.addEventListener('change', function () {
+
+        if (this.value === 'Below 10+2' || this.value === '') {
+            qualificationExtra.style.display = 'none';
+        }
+        else {
+            qualificationExtra.style.display = 'block';
+        }
+
+    });
+
+    courseSelect.addEventListener('change', function () {
+
+        const selectedOption = this.options[this.selectedIndex];
+
+        if (selectedOption.dataset.mode === 'Online') {
+            accommodationRequired.disabled = true;
+            accommodationRequired.value = '';
+        }
+        else {
+            accommodationRequired.disabled = false;
+        }
+
+    });
+
+</script>
 
 </div>
 

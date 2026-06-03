@@ -1,15 +1,77 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Page Title
+Reupload Signed Form
 {% endblock %}
 
 {% block content %}
 
-<h1>Page Title</h1>
+<h1>
+    Reupload Signed Form
+</h1>
 
-<p>
-    This section will be developed next.
-</p>
+<form method="POST"
+      enctype="multipart/form-data">
+
+    {% csrf_token %}
+
+    <label>
+        Select Application
+    </label>
+
+    <select name="application_id"
+            required>
+
+        <option value="">
+            -- Select Application --
+        </option>
+
+        {% if applications %}
+
+            {% for application in applications %}
+
+                {% if not application.signed_form %}
+
+                    <option value="{{ application.id }}">
+
+                        {{ application.application_number }}
+                        -
+                        {{ application.course.course_code }}
+                        :
+                        {{ application.course.title }}
+
+                    </option>
+
+                {% endif %}
+
+            {% endfor %}
+            {% else %}
+
+            <p>
+                All applications already have signed forms uploaded.
+            </p>
+
+        {% endif %}
+
+    </select>
+
+    <br><br>
+
+    <label>
+        Upload Signed Application Form PDF
+    </label>
+
+    <input type="file"
+           name="signed_form"
+           accept=".pdf"
+           required>
+
+    <br><br>
+
+    <button type="submit">
+        Upload Signed Form
+    </button>
+
+</form>
 
 {% endblock %}

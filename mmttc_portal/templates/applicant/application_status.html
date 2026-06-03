@@ -1,15 +1,112 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Page Title
+Application Status
 {% endblock %}
 
 {% block content %}
 
-<h1>Page Title</h1>
+<h1>
+    Application Status
+</h1>
 
-<p>
-    This section will be developed next.
-</p>
+<form method="GET"
+      class="application-search">
+
+    <div class="application-search-row">
+
+        <input type="text"
+               name="search"
+               placeholder="Enter Application Number"
+               value="{{ search|default:'' }}">
+
+        <button type="submit"
+                class="search-btn">
+            Search
+        </button>
+
+        <button type="button"
+                class="reset-btn"
+                onclick="window.location.href='/application-status/'">
+            Reset
+        </button>
+
+    </div>
+
+</form>
+
+<br>
+
+<br>
+
+<table class="info-table">
+
+    <tr>
+        <th>Application No.</th>
+        <th>Course</th>
+        <th>Submitted Date</th>
+        <th>Status</th>
+        <th>Signed Form</th>
+        <th>Remarks</th>
+    </tr>
+
+    {% for application in applications %}
+
+    <tr>
+
+        <td>
+            {{ application.application_number }}
+        </td>
+
+        <td>
+            {{ application.course.course_code }} :
+            {{ application.course.title }}
+
+            <br>
+
+            ({{ application.course.start_date }} -
+            {{ application.course.end_date }})
+            ({{ application.course.mode }})
+        </td>
+
+        <td>
+            {{ application.application_date }}
+        </td>
+
+        <td>
+            <strong>
+                {{ application.status }}
+            </strong>
+        </td>
+
+        <td>
+            {% if application.signed_form %}
+                Uploaded
+            {% else %}
+                Not Uploaded
+            {% endif %}
+        </td>
+
+        <td>
+            {% if application.remarks %}
+                {{ application.remarks }}
+            {% else %}
+                -
+            {% endif %}
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="6">
+            No applications found.
+        </td>
+    </tr>
+
+    {% endfor %}
+
+</table>
 
 {% endblock %}

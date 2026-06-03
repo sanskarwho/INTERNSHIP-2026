@@ -17,6 +17,37 @@ Success
         <h2>
             {{ message }}
         </h2>
+        {% if "Signed form uploaded" in message %}
+
+            <a href="/application-status/"
+            class="apply-btn">
+                Check Application Status
+            </a>
+
+        {% endif %}
+
+        {% if application %}
+
+        <p>
+            <strong>Application Number:</strong>
+            {{ application.application_number }}
+        </p>
+
+        {% if application.generated_application_pdf %}
+
+        <a href="{{ application.generated_application_pdf.url }}"
+        target="_blank"
+        class="apply-btn">
+
+            Download Application Form
+
+        </a>
+
+        {% endif %}
+
+        <br><br>
+
+        {% endif %}
 
         <p>
             Your action has been completed successfully.
@@ -24,9 +55,19 @@ Success
 
         <br>
 
+        {% if request.user.is_staff %}
+
         <a href="/admin-dashboard/" class="apply-btn">
             Return to Dashboard
         </a>
+
+        {% else %}
+
+        <a href="/dashboard/" class="apply-btn">
+            Return to Dashboard
+        </a>
+
+        {% endif %}
 
         <a href="/" class="apply-btn">
             Return to MMTTC Home Page

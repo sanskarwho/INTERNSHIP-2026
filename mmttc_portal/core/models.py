@@ -63,13 +63,13 @@ class Application(models.Model):
     # Personal Details
     title = models.CharField(max_length=20, blank=True)
 
-    full_name = models.CharField(max_length=200)
+    full_name = models.CharField(max_length=100)
 
     category = models.CharField(max_length=50, blank=True)
 
     is_pwd = models.BooleanField(default=False)
 
-    aadhaar_number = models.CharField(max_length=20, blank=True)
+    aadhaar_number = models.CharField(max_length=12, blank=True)
 
     photograph = models.ImageField(upload_to='photographs/',
                                    blank=True,
@@ -89,40 +89,31 @@ class Application(models.Model):
     nature_of_appointment = models.CharField(max_length=100, blank=True)
 
     # Address Details
-    official_address = models.TextField(blank=True)
+    official_address = models.TextField(max_length= 100,blank=True)
 
     official_state = models.CharField(max_length=100, blank=True)
 
     official_pin = models.CharField(max_length=10, blank=True)
 
-    mailing_address = models.TextField(blank=True)
+    mailing_address = models.TextField(max_length= 100, blank=True)
 
     mailing_state = models.CharField(max_length=100, blank=True)
 
     mailing_pin = models.CharField(max_length=10, blank=True)
 
     # Contact Details
-    mobile_number = models.CharField(max_length=15, blank=True)
+    mobile_number = models.CharField(max_length=10, blank=True)
 
-    alternate_number = models.CharField(max_length=15, blank=True)
+    alternate_number = models.CharField(max_length=10, blank=True)
 
-    email = models.EmailField(blank=True)
+    email = models.EmailField(max_length= 30,blank=True)
 
     # Academic Details
     highest_qualification = models.CharField(max_length=150, blank=True)
 
     qualification_status = models.CharField(max_length=100, blank=True)
 
-    subject_specialization = models.CharField(max_length=200, blank=True)
-
-    # Earlier Course Details
-    earlier_course_attended = models.BooleanField(default=False)
-
-    earlier_course_name = models.CharField(max_length=200, blank=True)
-
-    earlier_course_place = models.CharField(max_length=200, blank=True)
-
-    earlier_course_duration = models.CharField(max_length=100, blank=True)
+    subject_specialization = models.CharField(max_length=50, blank=True)
 
     # Accommodation
     accommodation_required = models.BooleanField(default=False)
@@ -164,10 +155,22 @@ class Application(models.Model):
         null=True
     )
 
+    generated_application_docx = models.FileField(
+        upload_to='application_uploads/generated_docs/',
+        blank=True,
+        null=True
+    )
+
     generated_application_pdf = models.FileField(
         upload_to='application_uploads/generated_pdfs/',
         blank=True,
         null=True
+    )
+    application_number = models.CharField(
+    max_length=30,
+    unique=True,
+    blank=True,
+    null=True
     )
 
     signed_form = models.FileField(
@@ -192,6 +195,23 @@ class Application(models.Model):
     def __str__(self):
 
         return f"{self.full_name} - {self.course.title}"
+    
+class EarlierAttendedCourse(models.Model):
+
+    application = models.ForeignKey(
+        Application,
+        on_delete=models.CASCADE,
+        related_name='earlier_courses'
+    )
+
+    course_name = models.CharField(max_length=200, blank=True)
+
+    completion_month_year = models.CharField(max_length=20, blank=True)
+
+    center_name = models.CharField(max_length=200, blank=True)
+
+    def __str__(self):
+        return self.course_name
 
 class Document(models.Model):
 
@@ -229,3 +249,16 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return self.subject
+    
+class CourseSchedule(models.Model):
+
+    pdf_file = models.FileField(
+        upload_to='course_schedules/',
+        blank=True,
+        null=True
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Tentative Course Schedule"

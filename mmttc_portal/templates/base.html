@@ -32,9 +32,13 @@
 
     <div class="container">
 
+        {% block side_banner %}
+
         <div class="side-banner">
             Malaviya Mission Teacher Training Centre
         </div>
+
+        {% endblock %}
 
     {% block content %}
     {% endblock %}
@@ -42,6 +46,8 @@
     </div>
 
     {% include 'includes/footer.html' %}
+
+    <script src="{% static 'js/script.js' %}"></script>
 
 </body>
 
