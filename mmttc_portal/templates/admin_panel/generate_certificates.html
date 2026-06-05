@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Generate Certificates
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Generate Certificates
+</h1>
+
+<table class="info-table">
+
+    <tr>
+        <th>Application No.</th>
+        <th>Name</th>
+        <th>Course</th>
+        <th>Institute</th>
+        <th>Status</th>
+        <th>Certificate</th>
+    </tr>
+
+    {% for application in applications %}
+
+    <tr>
+
+        <td>
+            {{ application.application_number }}
+        </td>
+
+        <td>
+            {{ application.full_name }}
+        </td>
+
+        <td>
+            {{ application.course.course_code }} :
+            {{ application.course.title }}
+
+            <br>
+
+            ({{ application.course.start_date }} -
+            {{ application.course.end_date }})
+        </td>
+
+        <td>
+            {{ application.official_address }}
+        </td>
+
+        <td>
+            {{ application.status }}
+        </td>
+
+        <td>
+
+            {% if application.certificate.certificate_file %}
+
+                <a href="{{ application.certificate.certificate_file.url }}"
+                   target="_blank"
+                   class="table-action neutral">
+                    View Certificate
+                </a>
+
+            {% else %}
+
+                <a href="/generate-certificate/{{ application.id }}/"
+                   class="table-action success">
+                    Generate Certificate
+                </a>
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="6">
+            No completed applications available for certificate generation.
+        </td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

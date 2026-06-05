@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Application Details
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Application Details
+</h1>
+
+<h3>
+    Application Number:
+    {{ application.application_number }}
+</h3>
+
+<hr>
+
+<h3>
+    Personal Details
+</h3>
+
+<p>
+    <strong>Name:</strong>
+    {{ application.full_name }}
+</p>
+
+<p>
+    <strong>Category:</strong>
+    {{ application.category }}
+</p>
+
+<p>
+    <strong>Aadhaar:</strong>
+    {{ application.aadhaar_number }}
+</p>
+
+<p>
+    <strong>Mobile:</strong>
+    {{ application.mobile_number }}
+</p>
+
+<p>
+    <strong>Email:</strong>
+    {{ application.email }}
+</p>
+
+<hr>
+
+<h3>
+    Course Details
+</h3>
+
+<p>
+    {{ application.course.course_code }}
+    :
+    {{ application.course.title }}
+</p>
+
+<hr>
+
+<h3>
+    Documents
+</h3>
+
+<p>
+
+    <a href="{{ application.generated_application_pdf.url }}"
+       target="_blank">
+
+        View Generated Application
+
+    </a>
+
+</p>
+
+{% if application.signed_form %}
+
+<p>
+
+    <a href="{{ application.signed_form.url }}"
+       target="_blank">
+
+        View Signed Form
+
+    </a>
+
+</p>
+
+{% endif %}
+
+<hr>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <label>
+        Status
+    </label>
+
+    <select name="status">
+
+        <option value="Submitted">
+            Submitted
+        </option>
+
+        <option value="Signed Form Uploaded">
+            Signed Form Uploaded
+        </option>
+
+        <option value="Under Review">
+            Under Review
+        </option>
+
+        <option value="Approved">
+            Approved
+        </option>
+
+        <option value="Rejected">
+            Rejected
+        </option>
+
+        <option value="Completed">
+            Completed
+        </option>
+
+    </select>
+
+    <br><br>
+
+    <label>
+        Remarks
+    </label>
+
+    <textarea name="remarks"
+              rows="5">
+
+{{ application.remarks }}
+
+    </textarea>
+
+    <br><br>
+
+    <button type="submit">
+        Save Changes
+    </button>
+
+</form>
+
+{% endblock %}

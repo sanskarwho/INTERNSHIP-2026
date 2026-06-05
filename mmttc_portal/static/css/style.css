@@ -1376,3 +1376,133 @@ button:hover {
 
     margin: 0 !important;
 }
+
+.status-approved {
+
+    color: green;
+
+    font-weight: bold;
+}
+
+.status-rejected {
+
+    color: red;
+
+    font-weight: bold;
+}
+
+.status-review {
+
+    color: #c78c00;
+
+    font-weight: bold;
+}
+
+.status-completed {
+
+    color: blue;
+
+    font-weight: bold;
+}
+
+.status-uploaded {
+
+    color: #555;
+
+    font-weight: bold;
+}
+
+.filter-form {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 20px;
+
+    padding: 12px;
+
+    background: white;
+
+    border: 1px solid white;
+
+    border-radius: 6px;
+}
+
+.filter-form input[name="institution"] {
+
+    width: 220px;
+}
+
+.filter-form select[name="state"] {
+
+    width: 130px;
+}
+
+.filter-form select[name="category"] {
+
+    width: 110px;
+}
+
+.filter-form select[name="status"] {
+
+    width: 140px;
+}
+
+.filter-row {
+
+    display: flex !important;
+
+    flex-direction: row !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    width: 100% !important;
+
+    flex-wrap: nowrap !important;
+}
+
+.filter-row input,
+.filter-row select {
+
+    display: inline-block !important;
+
+    width: auto !important;
+
+    margin: 0 !important;
+}
+
+.filter-row input[name="institution"] {
+
+    width: 210px !important;
+}
+
+.filter-row select[name="state"] {
+
+    width: 150px !important;
+}
+
+.filter-row select[name="category"] {
+
+    width: 120px !important;
+}
+
+.filter-row select[name="status"] {
+
+    width: 160px !important;
+}
+
+.filter-row button {
+
+    display: inline-block !important;
+
+    width: auto !important;
+
+    margin: 0 !important;
+}

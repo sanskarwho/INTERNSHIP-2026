@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Verify Certificate
+{% endblock %}
+
+{% block content %}
+
+<h1>
+    Certificate Verification
+</h1>
+
+{% if certificate %}
+
+    <h2>
+        Certificate Valid
+    </h2>
+
+    <p>
+        <strong>Certificate ID:</strong>
+        {{ certificate.certificate_id }}
+    </p>
+
+    <p>
+        <strong>Name:</strong>
+        {{ certificate.application.full_name }}
+    </p>
+
+    <p>
+        <strong>Course:</strong>
+        {{ certificate.application.course.course_code }} :
+        {{ certificate.application.course.title }}
+    </p>
+
+    <p>
+        <strong>Generated On:</strong>
+        {{ certificate.generated_at }}
+    </p>
+
+{% else %}
+
+    <h2>
+        Certificate Not Found
+    </h2>
+
+    <p>
+        The certificate ID is invalid or not available in the system.
+    </p>
+
+{% endif %}
+
+{% endblock %}

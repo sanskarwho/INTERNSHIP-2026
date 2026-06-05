@@ -135,8 +135,6 @@ urlpatterns = [
 
      path('application-status/', views.application_status, name='application_status'),
 
-     path('certificates/', views.certificates, name='certificates'),
-
      path('success/', views.success_page, name='success_page'),
 
      path('update-course-status/<int:id>/',
@@ -170,4 +168,60 @@ urlpatterns = [
      path('generate-schedule-pdf/',
      views.generate_schedule_pdf,
      name='generate_schedule_pdf'),
+
+     path(
+    'view-all-applications/',
+    views.view_all_applications,
+    name='view_all_applications'
+     ),
+
+     path(
+     'verify-applications/',
+     views.verify_applications,
+     name='verify_applications'
+     ),
+
+     path(
+    'application-details/<int:id>/',
+    views.application_details,
+    name='application_details'
+     ),
+
+     path(
+    'approve-application/<int:id>/',
+    views.approve_application,
+    name='approve_application'
+     ),
+
+     path(
+     'reject-application/<int:id>/',
+     views.reject_application,
+     name='reject_application'
+     ),
+
+     path(
+     'generate-certificates/',
+     views.generate_certificates,
+     name='generate_certificates'
+     ),
+
+     path(
+     'generate-certificate/<int:id>/',
+     views.generate_certificate,
+     name='generate_certificate'
+     ),
+
+     path(
+     'certificates/',
+     views.certificates,
+     name='certificates'
+     ),
+
+     path(
+     'verify-certificate/<str:certificate_id>/',
+     views.verify_certificate,
+     name='verify_certificate'
+     ),
+
+
 ]

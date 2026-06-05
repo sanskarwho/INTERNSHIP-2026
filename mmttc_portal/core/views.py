@@ -11,6 +11,7 @@ from .models import Applicant, Application
 from .models import ContactMessage
 from .models import EarlierAttendedCourse
 from .models import CourseSchedule
+from .models import Certificate
 
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
@@ -22,6 +23,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from django.core.files import File
 from django.conf import settings
 from datetime import timedelta
+
 import os
 
 from datetime import datetime
@@ -30,7 +32,13 @@ from docx import Document
 from docx.shared import Inches
 from django.utils import timezone
 from django.core.files import File
+
 import subprocess
+
+from pptx import Presentation
+from pptx.util import Inches
+
+import qrcode
 
 def home(request):
 
@@ -2339,10 +2347,6 @@ def application_status(request):
     )
 
 
-@login_required
-def certificates(request):
-
-    return render(request, 'applicant/certificates.html')
 
 def success_page(request):
 
@@ -2961,3 +2965,441 @@ def replace_photo_placeholder(doc, application):
 
                         return
                     
+@login_required
+def view_all_applications(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    applications = Application.objects.all().order_by('-application_date')
+
+    institution = request.GET.get('institution')
+    state = request.GET.get('state')
+    category = request.GET.get('category')
+    status = request.GET.get('status')
+
+    if institution:
+        applications = applications.filter(
+            official_address__icontains=institution
+        )
+
+    if state:
+        applications = applications.filter(
+            official_state=state
+        )
+
+    if category:
+        applications = applications.filter(
+            category=category
+        )
+
+    if status:
+        applications = applications.filter(
+            status=status
+        )
+
+    return render(
+        request,
+        'admin_panel/view_all_applications.html',
+        {
+            'applications': applications,
+            'institution': institution,
+            'state': state,
+            'category': category,
+            'status': status,
+        }
+    )
+
+@login_required
+def verify_applications(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    applications = Application.objects.filter(
+        signed_form__isnull=False
+    ).exclude(
+        signed_form=''
+    ).order_by('-application_date')
+
+    institution = request.GET.get('institution')
+    state = request.GET.get('state')
+    category = request.GET.get('category')
+    status = request.GET.get('status')
+
+    if institution:
+        applications = applications.filter(
+            official_address__icontains=institution
+        )
+
+    if state:
+        applications = applications.filter(
+            official_state=state
+        )
+
+    if category:
+        applications = applications.filter(
+            category=category
+        )
+
+    if status:
+        applications = applications.filter(
+            status=status
+        )
+
+    return render(
+        request,
+        'admin_panel/verify_applications.html',
+        {
+            'applications': applications,
+            'institution': institution,
+            'state': state,
+            'category': category,
+            'status': status,
+        }
+    )
+
+@login_required
+def application_details(request, id):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    application = Application.objects.get(
+        id=id
+    )
+
+    if request.method == 'POST':
+
+        application.status = request.POST.get(
+            'status'
+        )
+
+        application.remarks = request.POST.get(
+            'remarks'
+        )
+
+        application.save()
+
+        return redirect(
+            '/success/?message=Application updated successfully'
+        )
+
+    return render(
+        request,
+        'admin_panel/application_details.html',
+        {
+            'application': application
+        }
+    )
+
+@login_required
+def approve_application(request, id):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    application = Application.objects.get(id=id)
+
+    application.status = 'Approved'
+    application.remarks = 'Application approved after verification.'
+    application.save()
+
+    return redirect('/verify-applications/')
+
+@login_required
+def reject_application(request, id):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    application = Application.objects.get(id=id)
+
+    application.status = 'Rejected'
+    application.remarks = 'Application rejected after verification.'
+    application.save()
+
+    return redirect('/verify-applications/')
+
+def generate_certificate_id(application):
+
+    return f"CERT-{application.application_number}"
+
+def replace_text_in_shape(shape, replacements):
+
+    if shape.has_text_frame:
+
+        for paragraph in shape.text_frame.paragraphs:
+
+            full_text = paragraph.text
+
+            for key, value in replacements.items():
+
+                if key in full_text:
+                    full_text = full_text.replace(key, str(value))
+
+            if full_text != paragraph.text:
+
+                paragraph.clear()
+
+                run = paragraph.add_run()
+                run.text = full_text
+
+    if hasattr(shape, "shapes"):
+
+        for inner_shape in shape.shapes:
+
+            replace_text_in_shape(inner_shape, replacements)
+
+def replace_text_in_ppt(prs, replacements):
+
+    for slide in prs.slides:
+
+        for shape in slide.shapes:
+
+            if shape.has_text_frame:
+
+                text_frame = shape.text_frame
+
+                for paragraph in text_frame.paragraphs:
+
+                    full_text = ""
+
+                    for run in paragraph.runs:
+                        full_text += run.text
+
+                    for key, value in replacements.items():
+
+                        if key in full_text:
+                            full_text = full_text.replace(key, str(value))
+
+                    if full_text != paragraph.text:
+
+                        for run in paragraph.runs:
+                            run.text = ""
+
+                        if paragraph.runs:
+                            paragraph.runs[0].text = full_text
+                        else:
+                            paragraph.add_run().text = full_text
+
+def replace_qr_in_shape(slide, shape, qr_path):
+
+    if shape.has_text_frame and "{{QR_CODE}}" in shape.text:
+
+        left = shape.left
+        top = shape.top
+        width = shape.width
+        height = shape.height
+
+        element = shape._element
+        element.getparent().remove(element)
+
+        slide.shapes.add_picture(
+            qr_path,
+            left,
+            top,
+            width,
+            height
+        )
+
+        return True
+
+    if hasattr(shape, "shapes"):
+
+        for inner_shape in shape.shapes:
+
+            if replace_qr_in_shape(slide, inner_shape, qr_path):
+                return True
+
+    return False
+
+def replace_qr_placeholder(prs, qr_path):
+
+    for slide in prs.slides:
+
+        for shape in slide.shapes:
+
+            if replace_qr_in_shape(slide, shape, qr_path):
+                return
+            
+@login_required
+def generate_certificates(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    applications = Application.objects.filter(
+        status='Completed'
+    ).order_by('course__end_date', 'full_name')
+
+    return render(
+        request,
+        'admin_panel/generate_certificates.html',
+        {
+            'applications': applications
+        }
+    )
+
+@login_required
+def generate_certificate(request, id):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    application = Application.objects.get(id=id)
+
+    if application.status != 'Completed':
+        return redirect('/generate-certificates/')
+
+    certificate, created = Certificate.objects.get_or_create(
+        application=application,
+        defaults={
+            'certificate_id': generate_certificate_id(application)
+        }
+    )
+
+    template_path = os.path.join(
+        settings.BASE_DIR,
+        'core',
+        'templates_docs',
+        'certificate_template.pptx'
+    )
+
+    output_dir = os.path.join(
+        settings.MEDIA_ROOT,
+        'certificates'
+    )
+
+    qr_dir = os.path.join(
+        settings.MEDIA_ROOT,
+        'certificates',
+        'qr_codes'
+    )
+
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(qr_dir, exist_ok=True)
+
+    pptx_name = f"{certificate.certificate_id}.pptx"
+    pdf_name = f"{certificate.certificate_id}.pdf"
+    qr_name = f"{certificate.certificate_id}.png"
+
+    pptx_path = os.path.join(output_dir, pptx_name)
+    pdf_path = os.path.join(output_dir, pdf_name)
+    qr_path = os.path.join(qr_dir, qr_name)
+
+    if certificate.certificate_file:
+        certificate.certificate_file.delete(save=False)
+
+    if certificate.qr_code:
+        certificate.qr_code.delete(save=False)
+
+    if os.path.exists(pptx_path):
+        os.remove(pptx_path)
+
+    if os.path.exists(pdf_path):
+        os.remove(pdf_path)
+
+    if os.path.exists(qr_path):
+        os.remove(qr_path)
+
+    verification_url = (
+        f"http://127.0.0.1:8000/verify-certificate/"
+        f"{certificate.certificate_id}/"
+    )
+
+    qr = qrcode.make(verification_url)
+    qr.save(qr_path)
+
+    certificate.qr_code.save(
+        qr_name,
+        File(open(qr_path, 'rb')),
+        save=False
+    )
+
+    prs = Presentation(template_path)
+
+    participant_text = (
+        f"{application.title} {application.full_name}, "
+        f"{application.present_designation} from "
+        f"{application.official_address}"
+    )
+
+    replacements = {
+        '{{FULL_NAME}}': participant_text,
+        '{{COURSE_NAME}}': application.course.title,
+        '{{START_DATE}}': application.course.start_date.strftime('%d-%m-%Y'),
+        '{{END_DATE}}': application.course.end_date.strftime('%d-%m-%Y'),
+    }
+
+    replace_text_in_ppt(prs, replacements)
+
+    replace_qr_placeholder(prs, qr_path)
+
+    prs.save(pptx_path)
+
+    subprocess.run(
+        [
+            r'C:\Program Files\LibreOffice\program\soffice.exe',
+            '--headless',
+            '--convert-to',
+            'pdf',
+            '--outdir',
+            output_dir,
+            pptx_path
+        ],
+        check=True
+    )
+
+    certificate.certificate_file.save(
+        pdf_name,
+        File(open(pdf_path, 'rb')),
+        save=True
+    )
+
+    return redirect('/generate-certificates/')
+
+
+@login_required
+def certificates(request):
+
+    if request.user.is_staff:
+        return redirect('/admin-dashboard/')
+
+    applicant = Applicant.objects.get(user=request.user)
+
+    certificates = Certificate.objects.filter(
+        application__applicant=applicant
+    ).order_by('-generated_at')
+
+    return render(
+        request,
+        'applicant/certificates.html',
+        {
+            'certificates': certificates
+        }
+    )
+
+def debug_ppt_text(prs):
+
+    for slide in prs.slides:
+
+        for shape in slide.shapes:
+
+            if shape.has_text_frame:
+
+                print("SHAPE TEXT:", shape.text)
+
+def verify_certificate(request, certificate_id):
+
+    certificate = Certificate.objects.filter(
+        certificate_id=certificate_id
+    ).first()
+
+    return render(
+        request,
+        'public/verify_certificate.html',
+        {
+            'certificate': certificate
+        }
+    )

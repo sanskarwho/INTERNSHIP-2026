@@ -1,15 +1,71 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Page Title
+Certificates
 {% endblock %}
 
 {% block content %}
 
-<h1>Page Title</h1>
+<h1>
+    Certificates
+</h1>
 
-<p>
-    This section will be developed next.
-</p>
+<table class="info-table">
+
+    <tr>
+        <th>Certificate ID</th>
+        <th>Course</th>
+        <th>Generated On</th>
+        <th>Download</th>
+    </tr>
+
+    {% for certificate in certificates %}
+
+    <tr>
+
+        <td>
+            {{ certificate.certificate_id }}
+        </td>
+
+        <td>
+            {{ certificate.application.course.course_code }} :
+            {{ certificate.application.course.title }}
+        </td>
+
+        <td>
+            {{ certificate.generated_at }}
+        </td>
+
+        <td>
+
+            {% if certificate.certificate_file %}
+
+                <a href="{{ certificate.certificate_file.url }}"
+                   target="_blank"
+                   class="table-action neutral">
+                    Download
+                </a>
+
+            {% else %}
+
+                Not Available
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="4">
+            No certificates available yet.
+        </td>
+    </tr>
+
+    {% endfor %}
+
+</table>
 
 {% endblock %}

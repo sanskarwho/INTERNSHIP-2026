@@ -184,7 +184,7 @@ class Application(models.Model):
                               choices=STATUS_CHOICES,
                               default='Submitted')
 
-    remarks = models.TextField(blank=True, null=True)
+    remarks = models.TextField(blank=True, default = '')
 
     application_date = models.DateTimeField(auto_now_add=True)
 
@@ -225,15 +225,35 @@ class Document(models.Model):
 
 class Certificate(models.Model):
 
-    application = models.OneToOneField(Application,
-                                       on_delete=models.CASCADE)
+    application = models.OneToOneField(
+        Application,
+        on_delete=models.CASCADE
+    )
 
-    certificate_id = models.CharField(max_length=100,
-                                      unique=True)
+    certificate_id = models.CharField(
+        max_length=100,
+        unique=True,
+        blank=True
+    )
 
-    generated_at = models.DateTimeField(auto_now_add=True)
+    generated_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
-    certificate_file = models.FileField(upload_to='certificates/')
+    certificate_file = models.FileField(
+        upload_to='certificates/',
+        blank=True,
+        null=True
+    )
+
+    qr_code = models.ImageField(
+        upload_to='certificates/qr_codes/',
+        blank=True,
+        null=True
+    )
+
+    def __str__(self):
+        return self.certificate_id
 
 class ContactMessage(models.Model):
 
@@ -262,3 +282,4 @@ class CourseSchedule(models.Model):
 
     def __str__(self):
         return "Tentative Course Schedule"
+
