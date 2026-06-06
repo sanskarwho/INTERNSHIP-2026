@@ -6,6 +6,12 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth.decorators import login_required
 
+from django.db import models
+
+from django.db.models import Count
+from django.http import HttpResponse
+import csv
+
 from .models import Course
 from .models import Applicant, Application
 from .models import ContactMessage
@@ -2769,7 +2775,7 @@ def generate_application_docx(application):
     earlier_courses = list(application.earlier_courses.all())
 
     replacements = {
-        '{{PRINT_DATETIME}}': timezone.now().strftime('%d-%m-%Y %I:%M %p'),
+        '{{PRINT_DATETIME}}': timezone.localtime(timezone.now()).strftime('%d-%m-%Y %I:%M %p'),
         '{{APPLICATION_NUMBER}}': application.application_number or '',
         '{{COURSE_NAME}}': course_name,
         '{{FULL_NAME}}': f"{application.title} {application.full_name}",
@@ -2859,7 +2865,7 @@ def generate_application_files(application):
     earlier_courses = list(application.earlier_courses.all())
 
     replacements = {
-        '{{PRINT_DATETIME}}': timezone.now().strftime('%d-%m-%Y %I:%M %p'),
+        '{{PRINT_DATETIME}}': timezone.localtime(timezone.now()).strftime('%d-%m-%Y %I:%M %p'),
         '{{APPLICATION_NUMBER}}': application.application_number or '',
         '{{COURSE_NAME}}': course_name,
         '{{FULL_NAME}}': f"{application.title} {application.full_name}",
@@ -3325,9 +3331,13 @@ def generate_certificate(request, id):
         f"{application.official_address}"
     )
 
+    course_text = (
+        f"{application.course.course_code}: {application.course.title}"
+    )
+
     replacements = {
         '{{FULL_NAME}}': participant_text,
-        '{{COURSE_NAME}}': application.course.title,
+        '{{COURSE_NAME}}': course_text,
         '{{START_DATE}}': application.course.start_date.strftime('%d-%m-%Y'),
         '{{END_DATE}}': application.course.end_date.strftime('%d-%m-%Y'),
     }
@@ -3403,3 +3413,140 @@ def verify_certificate(request, certificate_id):
             'certificate': certificate
         }
     )
+
+@login_required
+def reports(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    applications = Application.objects.all().order_by('-application_date')
+
+    institution = request.GET.get('institution')
+    state = request.GET.get('state')
+    category = request.GET.get('category')
+    status = request.GET.get('status')
+
+    if institution:
+        applications = applications.filter(
+            official_address__icontains=institution
+        )
+
+    if state:
+        applications = applications.filter(
+            official_state=state
+        )
+
+    if category:
+        applications = applications.filter(
+            category=category
+        )
+
+    if status:
+        applications = applications.filter(
+            status=status
+        )
+
+    total_applications = applications.count()
+
+    approved_applications = applications.filter(
+        status='Approved'
+    )
+
+    rejected_applications = applications.filter(
+        status='Rejected'
+    )
+
+    course_stats = Course.objects.annotate(
+        total_applications=Count(
+            'application',
+            filter=models.Q(application__in=applications)
+        )
+    )
+
+    seat_status = Course.objects.all().order_by(
+        'course_code',
+        'title'
+    )
+
+    context = {
+        'total_applications': total_applications,
+        'approved_applications': approved_applications,
+        'rejected_applications': rejected_applications,
+        'course_stats': course_stats,
+        'seat_status': seat_status,
+
+        'institution': institution,
+        'state': state,
+        'category': category,
+        'status': status,
+    }
+
+    return render(
+        request,
+        'admin_panel/reports.html',
+        context
+    )
+
+@login_required
+def export_applications_csv(request):
+
+    if not request.user.is_staff:
+        return redirect('/dashboard/')
+
+    response = HttpResponse(content_type='text/csv')
+
+    response['Content-Disposition'] = 'attachment; filename="applications_report.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow([
+        'Application No.',
+        'Name',
+        'Course',
+        'Institution',
+        'State',
+        'Category',
+        'Status'
+    ])
+
+    applications = Application.objects.all().order_by('-application_date')
+
+    institution = request.GET.get('institution')
+    state = request.GET.get('state')
+    category = request.GET.get('category')
+    status = request.GET.get('status')
+
+    if institution:
+        applications = applications.filter(
+            official_address__icontains=institution
+        )
+
+    if state:
+        applications = applications.filter(
+            official_state=state
+        )
+
+    if category:
+        applications = applications.filter(
+            category=category
+        )
+
+    if status:
+        applications = applications.filter(
+            status=status
+        )
+
+    for application in applications:
+
+        writer.writerow([
+            application.application_number,
+            application.full_name,
+            application.course.title,
+            application.official_address,
+            application.official_state,
+            application.category,
+            application.status,
+        ])
+
+    return response

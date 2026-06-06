@@ -223,5 +223,11 @@ urlpatterns = [
      name='verify_certificate'
      ),
 
+     path('reports/', views.reports, name='reports'),
+
+     path('export-applications-csv/',
+          views.export_applications_csv,
+          name='export_applications_csv'),
+
 
 ]
