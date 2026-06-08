@@ -19,8 +19,7 @@ from .models import EarlierAttendedCourse
 from .models import CourseSchedule
 from .models import Certificate
 
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -57,8 +56,6 @@ def home(request):
             'schedule': schedule
         }
     )
-
-
 # LOGIN
 
 def login_page(request):
@@ -301,64 +298,6 @@ def delete_course(request, id):
     course.delete()
 
     return redirect('/success/?message=Course deleted successfully')
-
-
-# APPLY COURSE
-
-@login_required
-def apply_course(request, id):
-
-    if request.user.is_staff:
-
-        return redirect('/admin-dashboard/')
-
-    course = Course.objects.get(id=id)
-
-    applicant = Applicant.objects.get(user=request.user)
-
-    already_applied = Application.objects.filter(
-
-        applicant=applicant,
-        course=course
-
-    ).exists()
-
-    if already_applied:
-
-        return render(request,
-                      'applicant/already_applied.html')
-
-    if request.method == 'POST':
-
-        qualification = request.POST.get('qualification')
-
-        experience = request.POST.get('experience')
-
-        address = request.POST.get('address')
-
-        statement = request.POST.get('statement')
-
-        Application.objects.create(
-
-            applicant=applicant,
-
-            course=course,
-
-            qualification=qualification,
-
-            experience=experience,
-
-            address=address,
-
-            statement=statement
-
-        )
-
-        return redirect('/my-applications/')
-
-    return render(request,
-                  'applicant/apply_course.html',
-                  {'course': course})
 
 # VIEW APPLICATIONS
 

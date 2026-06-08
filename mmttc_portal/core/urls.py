@@ -29,10 +29,6 @@ urlpatterns = [
      views.delete_course,
      name='delete_course'),
 
-    path('apply-course/<int:id>/',
-     views.apply_course,
-     name='apply_course'),
-
     path('view-applications/',
      views.view_applications,
      name='view_applications'),
@@ -111,6 +107,7 @@ urlpatterns = [
     'contact/',
     views.contact_us,
     name='contact_us'),
+
      path(
      'gallery/',
      views.gallery,

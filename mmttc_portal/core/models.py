@@ -125,30 +125,6 @@ class Application(models.Model):
         null=True
     )
 
-    appointment_letter = models.FileField(
-        upload_to='application_uploads/appointment_letters/',
-        blank=True,
-        null=True
-    )
-
-    relieving_order = models.FileField(
-        upload_to='application_uploads/relieving_orders/',
-        blank=True,
-        null=True
-    )
-
-    id_proof = models.FileField(
-        upload_to='application_uploads/id_proofs/',
-        blank=True,
-        null=True
-    )
-
-    signature = models.ImageField(
-        upload_to='application_uploads/signatures/',
-        blank=True,
-        null=True
-    )
-
     other_document = models.FileField(
         upload_to='application_uploads/other_documents/',
         blank=True,
@@ -282,4 +258,3 @@ class CourseSchedule(models.Model):
 
     def __str__(self):
         return "Tentative Course Schedule"
-
